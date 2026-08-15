@@ -281,7 +281,11 @@ explicit:
 
 Poisson GLM on raw counts, log-library-size offset, errors clustered on patient.
 Mast-cell content in the same samples was flat (TPSAB1 log₂FC −0.09, P = 0.74;
-TPSB2 −0.10, P = 0.73; CPA3 −0.48, P = 0.037, n = 38 vs 54). In bulk tissue,
+TPSB2 −0.10, P = 0.73; CPA3 −0.48, P = 0.037, n = 38 vs 54). Nor does whole-skin
+TNFRSF9 track mast-cell content *within* any arm (Spearman ρ = +0.20 healthy,
++0.26 AD non-lesional, +0.12 AD lesional, −0.13 psoriasis lesional; all P > 0.18,
+n = 27–38 samples per arm) — consistent with mast cells being a minor source
+(Section 6 above). In bulk tissue,
 abundance and per-cell expression are not separable at all, and the mast-cell
 contribution is not separable from any other source. What bulk establishes is
 that skin TNFRSF9 rises steeply in AD, does so without any rise in mast-cell
