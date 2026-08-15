@@ -150,8 +150,50 @@ the donor numbers this question needs.
 
 ## 2A. Does the depth adjustment create the result?
 
-A reasonable objection: the libraries were sequenced comparably, so adjusting for
-depth may be removing signal rather than confounding. Answered with data.
+Two objections, both answered with data rather than argument.
+
+### 2A.0 "Sequencing depth" is the wrong name for what is being adjusted
+
+Sequencing depth in the strict sense is a property of the run — how many reads
+are allocated to a library — and it is shared by every cell in that library. Per-
+cell UMI counts are not that. They are *sampling effort per cell*: library reads
+× capture efficiency × **the cell's own mRNA content**. Only the first term is
+sequencing depth, and normalising by per-cell UMI divides out the third term,
+which is biology. The terminology used in §6 of the contract ("library size") is
+the conventional scRNA-seq usage, where each barcoded cell is its own library —
+but calling it *sequencing depth* was imprecise, and the distinction turns out to
+matter here.
+
+Decomposing the variance of log(UMI per cell) across mast cells and the §6
+control populations:
+
+| Component | Share of variance | Can it be sequencing depth? |
+|---|---|---|
+| Between libraries (flow cell, loading) | 27.4% | Yes |
+| Between cell types **within** a library | 22.0% | **No** — those cells shared a flow cell |
+| Cell to cell within a cell type | 50.6% | No |
+
+Roughly three-quarters of the variation is not a sequencing-run property. The
+within-library ratio makes this concrete and is immune to flow-cell depth by
+construction: mast cells yield **0.08–0.30** of the UMI that fibroblasts and
+keratinocytes yield **in the same run**, in every one of 39 libraries — and that
+ratio is **34% lower** in AD (median 0.134, n = 32 libraries) than in healthy
+skin (0.203, n = 7 libraries; Mann–Whitney P < 0.001).
+
+The decisive observation is that the two move in opposite directions: **AD
+libraries are sequenced more deeply overall (median 4,292 versus 1,564 UMI per
+cell) yet AD mast cells are shallower (693 versus 935 UMI).** No flow-cell effect
+can do that. The mast-cell UMI deficit in AD is a property of the cells, not of
+the sequencing — AD mast cells are transcriptionally smaller, detecting 399
+versus 477 genes and carrying less tryptase per cell.
+
+**Consequence.** Dividing TNFRSF9 by mast-cell UMI removes real biology along
+with technical effort, and it divides by a denominator that is 25% smaller in the
+AD arm. The **per-cell estimand is therefore primary** in this report and the
+per-UMI estimand is reported beside it as the compositional companion, as §6
+requires.
+
+### 2A.1 What is and is not depth-matched
 
 **"Sequencing depth" is three quantities, and only one can bias this test.**
 

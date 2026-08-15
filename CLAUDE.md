@@ -108,6 +108,17 @@ Pooled **+1.24 (0.32–2.16) fixed, +1.32 (−0.07–2.71) random, I²=42%**. Ad
 per mast UMI gives +1.44 / +1.53, I²=58%. Quote the random-effects estimate: a
 ~2.5-fold increase that does not reach conventional significance.
 
+**On "depth".** Sequencing depth is a property of the run and is shared by every
+cell in a library. Per-cell UMI is sampling effort = library reads x capture x
+the cell's own mRNA content. Variance decomposition of log(UMI/cell): 27.4%
+between libraries, 22.0% between cell types WITHIN a library (cannot be
+sequencing), 50.6% cell-to-cell. Within-library mast:stromal UMI ratio is
+0.08-0.30 in all 39 libraries and 34% lower in AD (0.134 vs 0.203, P<0.001).
+AD libraries are sequenced deeper overall (4,292 vs 1,564 UMI/cell) yet AD mast
+cells are shallower (693 vs 935) -- no flow-cell effect can do that. The deficit
+is cell-intrinsic, so dividing by mast UMI removes biology. **Per-cell is the
+primary estimand; per-UMI is reported beside it.**
+
 **On depth adjustment.** The arms are NOT depth-matched: AD cells are 1.5–2.2x
 deeper in fibroblasts, keratinocytes, macrophages and T/NK — but 0.74x in mast
 cells. Consequences, both reported: (a) the mast result does not need the
