@@ -102,7 +102,8 @@ def main() -> int:
         short = (r.cohort.replace(" (GSE204762, 3')", "").replace(" (GSE222840+GSE173205, 5')", "")
                  .replace(" (GSE153760 biopsies, 3' v3)", ""))
         labels.append(short)
-        xs.append(r.log2FC); los.append(r.ci_lo); his.append(r.ci_hi)
+        xs.append(r.log2FC)
+        los.append(r.log2FC - r.se_log2); his.append(r.log2FC + r.se_log2)  # +/- 1 SEM
         cols.append(MUTED["accent"] if "POOLED" in r.cohort else MUTED["mast"])
     y = np.arange(len(labels))
     for i in range(len(labels)):
@@ -112,7 +113,7 @@ def main() -> int:
     ax.axvline(0, color="#B0B0B0", lw=.6, ls="--")
     ax.set_yticks(y); ax.set_yticklabels(labels, fontsize=5.6)
     ax.invert_yaxis()
-    ax.set_xlabel("log$_2$ TNFRSF9 per mast UMI, AD vs healthy", fontsize=5.8)
+    ax.set_xlabel("log$_2$ TNFRSF9 per mast UMI, AD vs healthy  (± SEM)", fontsize=5.6)
     ax.set_title("g   direction consistent, magnitude not", loc="left",
                  fontweight="bold", fontsize=6.4)
     ax.text(.02, .02, "I² = 58%", transform=ax.transAxes, fontsize=5.6,

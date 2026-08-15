@@ -160,13 +160,14 @@ def main() -> int:
     y = np.arange(len(comps))
     for i, c in enumerate(comps):
         r = A.loc[c]
-        ax.plot([r.ci_lo, r.ci_hi], [i, i], color="#6B6B6B", lw=1)
+        ax.plot([r.log2FC - r.se_log2, r.log2FC + r.se_log2], [i, i],
+                color="#6B6B6B", lw=1.1)   # +/- 1 SEM
         ax.plot(r.log2FC, i, "o", ms=4, color=MUTED["ad_all"], zorder=5)
     ax.axvline(0, color="#B0B0B0", lw=.6, ls="--")
     ax.set_yticks(y); ax.set_yticklabels(labs, fontsize=5.6)
     ax.invert_yaxis()
-    ax.set_xlabel("log$_2$ fold change (offset: log UMI per spot)", fontsize=6)
-    ax.set_title("g   TNFRSF9 per spot", loc="left", fontweight="bold")
+    ax.set_xlabel("log$_2$ fold change", fontsize=6)
+    ax.set_title("g   TNFRSF9 per spot  (± SEM)", loc="left", fontweight="bold")
 
     # ---- row 3b: in-situ co-localisation ---------------------------------
     ax = fig.add_subplot(gsb[0, 1])
@@ -179,12 +180,12 @@ def main() -> int:
         col = MUTED["mast"] if content == "Mast" else ("#C4C4C4" if content == "Fibroblasts" else "#E0E0E0")
         ax.bar(xs, sub.log2FC, w, color=col, edgecolor="none",
                label=content + (" (subject)" if content == "Mast" else " (control)"))
-        ax.errorbar(xs, sub.log2FC, yerr=[sub.log2FC - sub.ci_lo, sub.ci_hi - sub.log2FC],
-                    fmt="none", ecolor="#6B6B6B", elinewidth=.6, capsize=1.2)
+        ax.errorbar(xs, sub.log2FC, yerr=sub.se_log2, fmt="none",
+                    ecolor="#6B6B6B", elinewidth=.7, capsize=1.4)   # +/- 1 SEM
     ax.axhline(0, color="#B0B0B0", lw=.6)
     ax.set_xticks(np.arange(len(order)))
     ax.set_xticklabels(["Healthy", "AD NL", "AD LS"], fontsize=6)
-    ax.set_ylabel("log$_2$ TNFRSF9 per SD content", fontsize=6, labelpad=1)
+    ax.set_ylabel("log$_2$ TNFRSF9 per doubling\nof content  (± SEM)", fontsize=5.8, labelpad=1)
     ax.legend(fontsize=5, loc="upper left")
     ax.set_title("h   in-situ co-localisation", loc="left", fontweight="bold")
 

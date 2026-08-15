@@ -71,14 +71,15 @@ def main() -> int:
     for i, p in enumerate(pops):
         r = C.loc[p]
         col = MUTED["mast"] if "SUBJECT" in p else "#9A9A9A"
-        ax.plot([r.ci_lo, r.ci_hi], [i, i], color="#6B6B6B", lw=1)
+        ax.plot([r.log2FC - r.se_log2, r.log2FC + r.se_log2], [i, i],
+                color="#6B6B6B", lw=1.1)   # +/- 1 SEM
         ax.plot(r.log2FC, i, "o", ms=4.5, color=col, zorder=5)
     ax.axvline(0, color="#B0B0B0", lw=.6, ls="--")
     ax.set_yticks(range(len(pops)))
     ax.set_yticklabels(["Mast (subject)", "Fibroblasts", "Keratinocytes",
                         "T/NK", "Macrophages"], fontsize=5.8)
     ax.invert_yaxis()
-    ax.set_xlabel("log$_2$ FC per UMI (adjusted), Healthy vs AD", fontsize=6)
+    ax.set_xlabel("log$_2$ FC per UMI (adjusted), Healthy vs AD  (± SEM)", fontsize=6)
     ax.set_title("a   §6 control populations", loc="left", fontweight="bold")
 
     # ---- calibration against abundance-matched genes ---------------------

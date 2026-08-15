@@ -113,8 +113,10 @@ def main() -> int:
         cols = [f"g_{g}" for g in gset if f"g_{g}" in s.columns]
         content = s[cols].sum(axis=1)
         cpm = 1e4 * content / s.total_counts
-        z = np.log1p(cpm)
-        z = (z - z.mean()) / z.std()            # per-SD effect, comparable across sets
+        # log2 predictor: the coefficient is the change in TNFRSF9 per DOUBLING
+        # of cell-type content. Previously this was z-scored, giving a "per SD"
+        # effect, which collides confusingly with error-bar terminology.
+        z = np.log2(1.0 + cpm)
         for arm in ["Healthy", "AD_NL", "AD_LS"]:
             d = s[s.arm == arm]
             zz = z[s.arm == arm]
@@ -130,7 +132,7 @@ def main() -> int:
             rows.append(r)
     B = pd.DataFrame(rows)
     B.to_csv(TAB / "spatial_colocalisation.csv", index=False)
-    print("\nB. TNFRSF9 per SD of cell-type content (in situ, depth-offset):")
+    print("\nB. TNFRSF9 per doubling of cell-type content (in situ, UMI-offset):")
     print(B[["content", "arm", "log2FC", "ci_lo", "ci_hi", "p", "n_spots", "donors"]]
           .to_string(index=False))
     return 0

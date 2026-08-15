@@ -91,13 +91,14 @@ def main() -> int:
     for i, (c, g, lab) in enumerate(comps):
         r = R[(R.comparison == c) & (R.gene == g)].iloc[0]
         col = MUTED["accent"] if g == TARGET else ("#7A5C7B" if g in ("TPSAB1", "TPSB2") else "#9A9A9A")
-        ax.plot([r.ci_lo, r.ci_hi], [i, i], color="#6B6B6B", lw=1)
+        ax.plot([r.log2FC - r.se_log2, r.log2FC + r.se_log2], [i, i],
+                color="#6B6B6B", lw=1.1)   # +/- 1 SEM
         ax.plot(r.log2FC, i, "o", ms=4, color=col, zorder=5)
     ax.axvline(0, color="#B0B0B0", lw=.6, ls="--")
     ax.set_yticks(range(len(comps)))
     ax.set_yticklabels([c[2] for c in comps], fontsize=5.2)
     ax.invert_yaxis()
-    ax.set_xlabel("log$_2$ fold change", fontsize=6)
+    ax.set_xlabel("log$_2$ fold change  (± SEM)", fontsize=6)
     ax.set_title("d   vs healthy, library-size-adjusted", loc="left", fontweight="bold")
 
     fig.savefig(FIG / "fig4_bulk.pdf")
