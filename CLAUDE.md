@@ -158,6 +158,17 @@ T-cell transcript, log2FC +2.73, P=0.022); dissociation stress (healthy arm is
 the *most* stressed, biasing against the finding); batch (fibroblasts and
 keratinocytes show no shift).
 
+**PROTEIN.** No protein data exist for TNFRSF9 on cutaneous mast cells, in
+health or AD (see results/PROTEIN_EVIDENCE.md). What exists: 4-1BB protein IS
+induced on mast cells via FcεRI and is functionally costimulatory (Nishimoto,
+Blood 2005 -- likely mouse BMMC, not skin); CD137 protein IS present on
+eosinophils in AD skin by flow + IHC and absent in healthy controls (Heinisch,
+JACI 2001) -- the same activation-restricted pattern in a neighbouring
+granulocyte. Human Protein Atlas has NO validated IHC for TNFRSF9 anywhere
+(Reliability IH = None), but its pan-tissue single-cell RNA atlas ranks MAST
+CELLS highest for TNFRSF9 (89.6 nCPM) above T cells (44.5) and NK (26.3).
+No CITE-seq/CyTOF of skin with a CD137 antibody exists.
+
 **Binding limitation.** Mast-cell recovery ranges 0.11%–4.4% of cells across
 cohorts and one dedicated AD atlas (GSE147424) yielded none at all. Every
 number here is conditional on the dissociation protocol.
