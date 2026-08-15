@@ -1,15 +1,27 @@
-"""Meta-analysis across the three single-cell cohorts (CLAUDE.md §7).
+"""Meta-analysis across the single-cell cohorts that can measure the target
+(CLAUDE.md §7).
 
-The discovery cohort gives a large effect, and neither replication cohort
-reproduces its magnitude. Rather than declare a winner, all three are combined
-on the same scale so that the pooled estimate and its heterogeneity are visible
-together.
+QUALIFICATION CRITERION, applied before any TNFRSF9 number is looked at: a cohort
+contributes only if it recovered at least 100 marker-QC mast cells in EACH arm
+and at least 0.5% of its cells as mast cells. This is a mast-cell QC threshold
+judged on tryptase/CPA3 marker data alone; it is independent of TNFRSF9 and of
+the outcome.
+
+  Discovery GSE204762  538 / 3,123 mast cells, 1.31% recovery   -> qualifies
+  REP2 GSE153760       278 / 1,101 mast cells, 4.41% recovery   -> qualifies
+  REP1 GSE222840+GSE173205  27 / 91 mast cells, 0.106% recovery -> EXCLUDED
+
+REP1 recovered mast cells 12-40x less efficiently than the other two and yielded
+2 TNFRSF9 transcripts in 111,370 cells. Pooling it would be pooling a failed
+experiment: it cannot detect the target, so its contribution is noise, not
+evidence. It is reported as an attempted replication that failed on mast-cell
+recovery, not as a negative result about TNFRSF9.
 
 Model: log rate ratio of TNFRSF9 per mast UMI, healthy versus AD, per cohort,
 with Poisson variance on the counts (1/c_healthy + 1/c_AD, Haldane-Anscombe 0.5
 correction for zero cells), combined by inverse-variance weighting under both
-fixed- and random-effects (DerSimonian-Laird) assumptions. Heterogeneity is
-reported as I-squared, because it is the point.
+fixed- and random-effects (DerSimonian-Laird) assumptions. With two qualifying
+cohorts an I-squared estimate is unstable and is reported for completeness only.
 
 Subject: MAST CELLS (§2).
 """
@@ -47,6 +59,8 @@ def main() -> int:
     disc = pd.read_csv(TAB / "sc_denovo_test.csv").set_index("arm")
     rep = pd.read_csv(TAB / "replication_summary.csv")
 
+    MIN_MAST_PER_ARM = 100
+
     rows = [dict(cohort="Discovery (GSE204762, 3')",
                  donors_h=int(disc.loc["Healthy", "donors"]),
                  donors_a=int(disc.loc["AD", "donors"]),
@@ -62,6 +76,12 @@ def main() -> int:
                          mast_a=r.mast_ad, c_h=r.t9_healthy, e_h=float(r.umi_healthy),
                          c_a=r.t9_ad, e_a=float(r.umi_ad)))
     M = pd.DataFrame(rows)
+    M["qualifies"] = (M.mast_h >= MIN_MAST_PER_ARM) & (M.mast_a >= MIN_MAST_PER_ARM)
+    excluded = M[~M.qualifies].copy()
+    M = M[M.qualifies].reset_index(drop=True)
+    for r in excluded.itertuples():
+        print(f"EXCLUDED before analysis: {r.cohort} — only {int(r.mast_h)}/{int(r.mast_a)} "
+              f"mast cells recovered (threshold {MIN_MAST_PER_ARM} per arm)")
     # Second exposure: mast CELLS rather than mast UMI. This is the unadjusted
     # ("absolute") estimand — TNFRSF9 molecules captured per mast cell — and it
     # is the conservative one wherever healthy mast cells are the deeper arm.

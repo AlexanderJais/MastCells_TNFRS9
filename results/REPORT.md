@@ -32,16 +32,17 @@ Resting primary human skin mast cells are essentially TNFRSF9-negative
 (0.14 FPKM); IL-33 induces the gene 29-fold, IgE-receptor cross-linking 7-fold,
 and the two together 59-fold, while TSLP and IL-25 alone do nothing. An
 independent paired-donor cohort reproduces this (IL-33 log₂FC +6.53, P = 0.001,
-n = 4 donors). In AD skin, mast-cell TNFRSF9 exceeds healthy skin in 3 of 3
-single-cell cohorts, but the magnitude is heterogeneous and the pooled
-random-effects estimate is not conventionally significant (log₂FC +1.32,
-95% CI −0.07 to +2.71, P = 0.063, I² = 42%; 843 versus 4,315 mast cells).
-Mast-cell abundance does not change, so the entire effect sits in per-cell
-expression. Mast cells nevertheless contribute only 2.7–5.7% of the TNFRSF9 in
+n = 4 donors). In AD skin the discovery cohort shows a clear increase — 0.56% of
+healthy mast cells carry a TNFRSF9 transcript versus 2.91% in AD (Fisher OR 5.35,
+P = 0.001) — but **this does not reproduce in the one independent cohort with
+adequate mast-cell recovery** (2.16% versus 2.45%, OR 1.14, P = 1.00), where the
+healthy baseline is four-fold higher. Mast-cell abundance is unchanged in both,
+so nothing in this system is driven by cell number. Mast cells nevertheless contribute only 2.7–5.7% of the TNFRSF9 in
 skin, and whole-tissue TNFRSF9 rises as much in psoriasis as in AD, so the
 tissue-level signal marks inflamed skin rather than AD. The in-vitro mechanism
-accounts for the in-vivo variance: TNFRSF9 reports how activated a mast cell was
-at the moment of biopsy.
+supplies the likely explanation for the discordant in-vivo cohorts: TNFRSF9
+reports how activated a mast cell was when the biopsy was taken, which is not a
+fixed property of a diagnosis.
 
 ---
 
@@ -118,41 +119,53 @@ stronger of the two.
 
 ---
 
-## 3. Replication, and what fails in it (CLAUDE.md §7)
+## 3. Replication: the AD increase does not reproduce (CLAUDE.md §7)
 
-Two independent cohorts, identical donor-level exact permutation test. Neither
-deposit carries author cell-type labels, so mast cells were called by a rule
-*calibrated on the discovery cohort's labels* — ≥2 of TPSAB1/TPSB2/CPA3 detected
-**and** ≥50 tryptase+CPA3 transcripts per 10k UMI (precision 96.0%, sensitivity
-79.3%). The magnitude requirement is not cosmetic: detection alone tags hundreds
-of keratinocytes carrying ambient tryptase from lysed mast cells (Fig. 5a).
+**Which cohorts can test this.** A cohort contributes only if it recovered ≥100
+marker-QC mast cells in each arm and ≥0.5% of its cells as mast cells — a
+mast-cell QC threshold judged on tryptase/CPA3 marker data alone, independent of
+TNFRSF9 and of the outcome.
 
-| Cohort | Donors H/AD | Mast cells H/AD | Transcripts H/AD | log₂FC per cell | log₂FC per UMI |
-|---|---|---|---|---|---|
-| Discovery GSE204762 (3′) | 6 / 11 | 538 / 3,123 | 3 / 107 | +2.40 | +2.81 |
-| REP1 GSE222840+GSE173205 (5′) | 4 / 5 | 27 / 91 | 0 / 2 | +0.57 | +0.51 |
-| REP2 GSE153760 biopsies (3′ v3) | 2 / 4 | 278 / 1,101 | 6 / 38 | +0.58 | +0.68 |
-| **Pooled, fixed effects** | 12 / 20 | 843 / 4,315 | 9 / 147 | **+1.24** (0.32–2.16), P = 0.0085 | +1.44 (0.52–2.37) |
-| **Pooled, random effects** | 12 / 20 | 843 / 4,315 | 9 / 147 | **+1.32** (−0.07–2.71), P = 0.063 | +1.53 (−0.16–3.22) |
-| Heterogeneity | | | | **I² = 42%** | I² = 58% |
+| Cohort | Mast-cell recovery | Mast cells H / AD | Qualifies |
+|---|---|---|---|
+| GSE153760 | 4.41% | 278 / 1,101 | yes |
+| GSE204762 (discovery) | 1.31% | 538 / 3,123 | yes |
+| GSE222840 + GSE173205 | **0.106%** | **27 / 91** | **no** |
 
-**What replicates:** the direction, 3 of 3 cohorts; and the fact of expression in
-every cohort with usable mast-cell recovery.
+GSE222840+GSE173205 recovered mast cells 12–40× less efficiently than the other
+two and yielded 2 TNFRSF9 transcripts in 111,370 cells (Fig. 5d). A cohort that
+cannot recover the cell type cannot test a gene in it, so it is reported as an
+attempted replication that failed on mast-cell recovery, not as evidence about
+TNFRSF9, and it is not pooled.
 
-**What does not:** the *magnitude* (the discovery effect is 4–6× either
-replication), and statistical significance — no replication cohort reaches it
-alone and neither does the random-effects pooled estimate.
+**The result in the one qualifying independent cohort.**
 
-**Why REP1 is uninformative rather than negative.** Mast-cell recovery failed in
-that pipeline: 118 mast cells in 111,370 (0.11%), against 1.2–1.5% in discovery
-and 4.4% in REP2, with no coherent mast-cell cluster in the embedding (Fig. 5a).
-Two TNFRSF9 transcripts in the entire cohort cannot confirm or refute anything.
+| Cohort | TNFRSF9⁺ healthy | TNFRSF9⁺ AD | Fisher OR | P |
+|---|---|---|---|---|
+| Discovery GSE204762 | 3/538 (**0.56%**) | 91/3,123 (**2.91%**) | 5.35 | **0.001** |
+| **GSE153760** | 6/278 (**2.16%**) | 27/1,101 (**2.45%**) | **1.14** | **1.00** |
 
-**Concentration warning for both.** REP2's AD signal is concentrated in one donor
-(AD7: 31 of 38 transcripts, and an outlier at 13.3% mast cells), and its healthy
-arm has 2 donors, one contributing 5 of 6 transcripts. The discovery cohort is
-similarly concentrated (MGH108: 55 of 107). No in-vivo cohort examined here has
-the donor numbers this question needs.
+**The AD increase does not reproduce.** In GSE153760 the TNFRSF9⁺ mast-cell
+fraction is the same in healthy and AD skin. The discrepancy is not in the AD
+arms, which agree closely (2.91% versus 2.45%); it is in the healthy arms, which
+differ four-fold (0.56% versus 2.16%). GSE153760's healthy baseline leaves no
+room for an increase.
+
+Neither cohort is well placed to settle which healthy baseline is right:
+GSE153760 has **two** healthy donors, one contributing 5 of its 6 TNFRSF9⁺ cells;
+the discovery cohort has six, five of them contributing none.
+
+On the per-transcript rate the two cohorts agree in direction (discovery log₂FC
++2.40, GSE153760 +0.58), and pooled they give +1.27 (95% CI 0.33 to 2.22,
+P = 0.0084) under fixed effects and +1.43 (95% CI −0.36 to 3.21, P = 0.12) under
+random effects. But the primary quantification — what fraction of mast cells
+carry the transcript — replicates only as *expression*, not as an *AD-associated
+increase*.
+
+**What replicates:** that cutaneous mast cells express TNFRSF9, at 2.2–2.9% of
+mast cells in both qualifying cohorts.
+
+**What does not:** the increase in AD.
 
 ---
 
@@ -436,8 +449,10 @@ rest of the mast-cell transcriptome is **not** supported.
    across cohorts under one rule. One dedicated AD atlas (GSE147424,
    cryopreserved biopsies) contained *no* recoverable mast cells and was excluded
    (`docs/datasets.md`); suction-blister sampling also fails to capture them.
-4. **Heterogeneity.** I² = 42%; the random-effects pooled estimate does not reach
-   significance.
+4. **The AD increase is not replicated.** It is clear in the discovery cohort
+   (OR 5.35, P = 0.001) and absent in the one qualifying independent cohort
+   (OR 1.14, P = 1.00). The disagreement is in the healthy baseline (0.56% vs
+   2.16% of mast cells), which neither cohort has the donors to settle.
 5. **Not exceptional against background** (7.4), and **not AD-specific** at
    tissue level (Section 6).
 6. **In vitro is sufficiency, not contribution.** Section 4 shows mast cells

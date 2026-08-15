@@ -119,13 +119,21 @@ recovery. Reproducible. Mast cells nevertheless supply only 2.7–5.7% of the
 TNFRSF9 in the tissue.
 
 **Q2 — Does expression change between healthy and AD skin?**
-**Higher in AD in 3/3 single-cell cohorts, but the magnitude does not
-replicate.** Lead with the UNADJUSTED estimand (TNFRSF9 per mast cell): healthy
-mast cells are the deeper arm (AD/H UMI ratio 0.74–1.04 across cohorts), so
-unadjusted is the conservative choice and it also has lower heterogeneity.
-Pooled **+1.24 (0.32–2.16) fixed, +1.32 (−0.07–2.71) random, I²=42%**. Adjusting
-per mast UMI gives +1.44 / +1.53, I²=58%. Quote the random-effects estimate: a
-~2.5-fold increase that does not reach conventional significance.
+**NOT ESTABLISHED — the discovery result does not replicate.**
+  Discovery GSE204762 : 3/538 (0.56%) healthy vs 91/3123 (2.91%) AD mast cells
+                        TNFRSF9+, Fisher OR 5.35, P = 0.001
+  GSE153760           : 6/278 (2.16%) vs 27/1101 (2.45%), OR 1.14, P = 1.00
+The AD arms agree (2.91% vs 2.45%); the HEALTHY arms differ 4-fold (0.56% vs
+2.16%) and that is the whole discrepancy. GSE153760 has 2 healthy donors, the
+discovery cohort 6 -- neither can settle the baseline. On the per-transcript
+rate the two agree in direction (+2.40, +0.58) and pool to +1.27 (0.33-2.22)
+fixed / +1.43 (-0.36-3.21) random.
+GSE222840+GSE173205 is EXCLUDED on a prespecified mast-QC threshold (0.106%
+mast-cell recovery, 27 healthy mast cells, 2 TNFRSF9 transcripts in 111,370
+cells). It failed to recover the cell type; it is not evidence about the gene.
+
+**Mast-cell abundance is unchanged** in every cohort (1.47% vs 1.30%/1.21% of
+cells, MWU P = 0.79/1.00).
 
 **On "depth".** Sequencing depth is a property of the run and is shared by every
 cell in a library. Per-cell UMI is sampling effort = library reads x capture x

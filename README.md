@@ -19,10 +19,11 @@ violation.
 
 * **Expressed?** Yes, at low level. 2.4–2.6% of AD mast cells carry a transcript;
   reproducible across cohorts.
-* **Changed in AD?** Higher in 3 of 3 single-cell cohorts, but heterogeneous:
-  pooled random-effects log₂FC **+1.32 (95% CI −0.07 to +2.71), P = 0.063,
-  I² = 42%**. Abundance does not change — the whole effect is per-cell
-  expression.
+* **Changed in AD?** **Not established.** The discovery cohort shows a clear
+  increase (0.56% → 2.91% of mast cells TNFRSF9⁺, Fisher OR 5.35, P = 0.001);
+  the one independent cohort with adequate mast-cell recovery does not
+  (2.16% → 2.45%, OR 1.14, P = 1.00). The cohorts disagree on the *healthy*
+  baseline, not the AD arms. Mast-cell abundance is unchanged in both.
 * **Why heterogeneous?** Because it tracks activation state, not disease. In
   **primary human skin mast cells**, resting cells are essentially negative
   (0.14 FPKM) and the gene is induced **29× by IL-33, 7× by IgE cross-linking and
@@ -47,7 +48,7 @@ from the same study or laboratory pipeline. Full inventory including exclusions:
 | Role | Accession | Design |
 |---|---|---|
 | Discovery scRNA-seq | GSE204762 | 11 AD (paired NL/LS) + 6 healthy donors, 280,518 cells |
-| Replication 1 | GSE222840 + GSE173205 | 5 AD + 4 healthy, same lab, 5′ chemistry |
+| Replication 1 (excluded) | GSE222840 + GSE173205 | 5 AD + 4 healthy; **0.11% mast-cell recovery — fails QC, not pooled** |
 | Replication 2 | GSE153760 | 4 AD + 2 healthy biopsies, 3′ v3 |
 | Spatial | GSE197023 | Visium: 7 AD LS, 6 AD NL, 6 healthy sections |
 | Bulk | GSE121212 | 38 healthy, 54 AD, 55 psoriasis (disease control) |

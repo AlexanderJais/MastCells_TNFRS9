@@ -1,8 +1,15 @@
-"""Figure 5 — replication (CLAUDE.md §7): what reproduces and what does not.
+"""Figure 5 — replication in an independent cohort (CLAUDE.md §7).
 
-Subject: MAST CELLS (§2). UMAPs are the authors'-free embeddings computed here
-for each replication cohort; mast cells are called by the rule calibrated on the
-discovery cohort (s41).
+Panels mirror Figures 1 and 2 so the replication is read against the discovery
+cohort on identical axes: the mast-cell map, the TNFRSF9+ mast cells on it, and
+the TNFRSF9+ fraction with statistics.
+
+Panel d records mast-cell recovery per cohort. It is the reason GSE222840 +
+GSE173205 does not enter the analysis: 0.11% of cells recovered as mast cells
+against 1.31% and 4.41% elsewhere, giving 27 mast cells in the healthy arm. A
+cohort that cannot recover the cell type cannot test a gene in it.
+
+Subject: MAST CELLS (§2).
 """
 from __future__ import annotations
 
@@ -12,6 +19,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from scipy import stats
 
 warnings.filterwarnings("ignore")
 sys.path.insert(0, str(Path(__file__).resolve().parent))
@@ -31,93 +39,116 @@ SUBJECT = G.require_mast_subject("Mast")
 COMPARISONS = G.comparison_order([G.PRIMARY])
 THR = 50.0
 
-COH = [("REP1 · GSE222840+GSE173205", "rep1_obs.parquet", "rep1_umap.parquet"),
-       ("REP2 · GSE153760 biopsies", "rep2_obs.parquet", "rep2_umap.parquet")]
+ARM_COL = {"Healthy": MUTED["healthy"], "AD": MUTED["ad_all"]}
+
+
+def load_rep2() -> pd.DataFrame:
+    o = pd.read_parquet(REP / "rep2_obs.parquet")
+    u = pd.read_parquet(REP / "rep2_umap.parquet")
+    o = o.drop(columns=[c for c in ("umap1", "umap2") if c in o.columns])
+    d = o.join(u[["umap1", "umap2"]], how="inner")
+    d["tryp"] = 1e4 * d[[f"g_{g}" for g in MAST_QC]].sum(axis=1) / d.depth_retained
+    d["mast"] = d.mast_qc_pass & (d.tryp >= THR)
+    d["t9pos"] = d[f"g_{TARGET}"] > 0
+    return d
+
+
+def bare(ax):
+    ax.set_xticks([]); ax.set_yticks([])
+    ax.set_aspect("equal")
+    for s in ax.spines.values():
+        s.set_visible(False)
 
 
 def main() -> int:
     set_style()
-    fig = plt.figure(figsize=(DOUBLE_COL, DOUBLE_COL * 0.52))
-    gs = fig.add_gridspec(2, 4, hspace=0.42, wspace=0.45,
-                          width_ratios=[1, 1, 1, 1.35])
+    d = load_rep2()
+    mast = d[d.mast]
 
-    for row, (title, fo, fu) in enumerate(COH):
-        o = pd.read_parquet(REP / fo)
-        u = pd.read_parquet(REP / fu)
-        # obs already carries umap1/umap2 from build(); drop before joining
-        o = o.drop(columns=[c for c in ("umap1", "umap2") if c in o.columns])
-        d = o.join(u[["umap1", "umap2"]], how="inner")
-        d["tryp"] = 1e4 * d[[f"g_{g}" for g in MAST_QC]].sum(axis=1) / d.depth_retained
-        d["mast"] = d.mast_qc_pass & (d.tryp >= THR)
-        d["t9pos"] = d[f"g_{TARGET}"] > 0
+    fig = plt.figure(figsize=(DOUBLE_COL, DOUBLE_COL * 0.34))
+    gs = fig.add_gridspec(1, 4, wspace=0.62, width_ratios=[1, 1, 1.2, 1.0])
 
-        # a: cluster map with mast highlighted
-        ax = fig.add_subplot(gs[row, 0])
-        ax.scatter(d.umap1, d.umap2, s=.5, lw=0, c="#DFDFDF", rasterized=True)
-        m = d[d.mast]
-        ax.scatter(m.umap1, m.umap2, s=3.5, lw=0, c=MUTED["mast"], rasterized=True)
-        ax.set_xticks([]); ax.set_yticks([])
-        for s in ax.spines.values():
-            s.set_visible(False)
-        ax.set_title(f"{'a' if row == 0 else 'd'}   {title}", loc="left",
-                     fontweight="bold", fontsize=6.2)
-        ax.text(.02, .03, f"{len(m):,} mast / {len(d):,} cells "
-                          f"({100*len(m)/len(d):.2f}%)",
-                transform=ax.transAxes, fontsize=5.2, color="#4A4A4A")
+    # ---- a. where the mast cells are -------------------------------------
+    ax = fig.add_subplot(gs[0, 0])
+    ax.scatter(d.umap1, d.umap2, s=.6, lw=0, c="#DFDFDF", rasterized=True)
+    ax.scatter(mast.umap1, mast.umap2, s=2.4, lw=0, c=MUTED["mast"], rasterized=True)
+    bare(ax)
+    ax.set_title(r"$\bf{a}$   GSE153760 · " f"{len(mast):,} mast cells",
+                 loc="left", fontsize=6.6, pad=4)
 
-        # b: tryptase overlay
-        ax = fig.add_subplot(gs[row, 1])
-        s_ = d.sort_values("tryp")
-        sc = ax.scatter(s_.umap1, s_.umap2, s=.5, lw=0, rasterized=True,
-                        c=np.log1p(s_.tryp), cmap="BuPu", vmin=0, vmax=6)
-        ax.set_xticks([]); ax.set_yticks([])
-        for s in ax.spines.values():
-            s.set_visible(False)
-        ax.set_title("tryptase/CPA3", loc="left", fontsize=5.8)
-        cb = fig.colorbar(sc, ax=ax, fraction=.04, pad=.02)
-        cb.ax.tick_params(labelsize=4.4)
+    # ---- b. TNFRSF9+ mast cells on the mast island -----------------------
+    ax = fig.add_subplot(gs[0, 1])
+    x0, x1 = mast.umap1.quantile([.005, .995]); y0, y1 = mast.umap2.quantile([.005, .995])
+    pad = 1.0
+    ax.scatter(mast.umap1, mast.umap2, s=2.4, lw=0, c="#CFCFCF", rasterized=True)
+    for arm in ("Healthy", "AD"):
+        p = mast[(mast.arm == arm) & mast.t9pos]
+        ax.scatter(p.umap1, p.umap2, s=7, lw=.3, facecolor=ARM_COL[arm],
+                   edgecolor="#1F1F1F", zorder=5, label=arm)
+    ax.set_xlim(x0 - pad, x1 + pad); ax.set_ylim(y0 - pad, y1 + pad)
+    bare(ax)
+    ax.set_title(r"$\bf{b}$   TNFRSF9$^+$ mast cells", loc="left", fontsize=6.6, pad=4)
+    ax.legend(fontsize=5.4, loc="lower center", bbox_to_anchor=(.5, -.14), ncol=2,
+              frameon=False, markerscale=1.2, handletextpad=.15, columnspacing=.8)
 
-        # c: mast cells by arm, TNFRSF9+ marked
-        ax = fig.add_subplot(gs[row, 2])
-        ax.scatter(m.umap1, m.umap2, s=3.5, lw=0, c="#CFCFCF", rasterized=True)
-        for arm, col in (("Healthy", MUTED["healthy"]), ("AD", MUTED["ad_all"])):
-            p = m[(m.arm == arm) & m.t9pos]
-            ax.scatter(p.umap1, p.umap2, s=15, lw=.35, facecolor=col,
-                       edgecolor="#1F1F1F", zorder=5, label=arm)
-        ax.set_xticks([]); ax.set_yticks([])
-        for s in ax.spines.values():
-            s.set_visible(False)
-        nh = int(m[(m.arm == "Healthy") & m.t9pos].shape[0])
-        na = int(m[(m.arm == "AD") & m.t9pos].shape[0])
-        ax.set_title(f"TNFRSF9$^+$: {nh} healthy, {na} AD", loc="left", fontsize=6)
-        if row == 0:
-            ax.legend(fontsize=5, loc="lower right", markerscale=.8,
-                      handletextpad=.15, borderpad=.15)
+    # ---- c. the TNFRSF9+ fraction, both cohorts, per sample --------------
+    ax = fig.add_subplot(gs[0, 2])
+    disc = pd.read_csv(TAB / "sc_sample_level.csv")
+    disc["pct"] = 100 * disc.n_mast_t9pos / disc.n_mast.replace(0, np.nan)
+    disc["armp"] = np.where(disc.arm == "Healthy", "Healthy", "AD")
+    r2 = pd.read_csv(TAB / "replication_donor_level.csv")
+    r2 = r2[r2.cohort.str.startswith("REP2")].copy()
+    r2["pct"] = 100 * r2.n_mast_t9pos / r2.n_mast.replace(0, np.nan)
+    r2["armp"] = r2.arm
 
-    # ---- forest plot across cohorts --------------------------------------
-    ax = fig.add_subplot(gs[:, 3])
-    M = pd.read_csv(TAB / "meta_analysis.csv")
-    labels, xs, los, his, cols = [], [], [], [], []
-    for r in M.itertuples():
-        short = (r.cohort.replace(" (GSE204762, 3')", "").replace(" (GSE222840+GSE173205, 5')", "")
-                 .replace(" (GSE153760 biopsies, 3' v3)", ""))
-        labels.append(short)
-        xs.append(r.log2FC)
-        los.append(r.log2FC - r.se_log2); his.append(r.log2FC + r.se_log2)  # +/- 1 SEM
-        cols.append(MUTED["accent"] if "POOLED" in r.cohort else MUTED["mast"])
-    y = np.arange(len(labels))
-    for i in range(len(labels)):
-        ax.plot([los[i], his[i]], [i, i], color="#6B6B6B", lw=1)
-        ax.plot(xs[i], i, "D" if "POOLED" in labels[i] else "o",
-                ms=4.5 if "POOLED" in labels[i] else 4, color=cols[i], zorder=5)
-    ax.axvline(0, color="#B0B0B0", lw=.6, ls="--")
-    ax.set_yticks(y); ax.set_yticklabels(labels, fontsize=5.6)
-    ax.invert_yaxis()
-    ax.set_xlabel("log$_2$ TNFRSF9 per mast UMI, AD vs healthy  (± SEM)", fontsize=5.6)
-    ax.set_title("g   direction consistent, magnitude not", loc="left",
-                 fontweight="bold", fontsize=6.4)
-    ax.text(.02, .02, "I² = 58%", transform=ax.transAxes, fontsize=5.6,
-            color="#4A4A4A")
+    rng = np.random.default_rng(5)
+    pos, labels, notes = [], [], []
+    for k, (name, df) in enumerate([("Discovery", disc), ("GSE153760", r2)]):
+        for j, arm in enumerate(("Healthy", "AD")):
+            i = k * 2.6 + j
+            v = df.loc[df.armp == arm, "pct"].astype(float).dropna().values
+            ax.scatter(i + rng.uniform(-.16, .16, len(v)), v, s=14, lw=.3,
+                       facecolor=ARM_COL[arm], edgecolor="#333333", zorder=3)
+            ax.plot([i - .28, i + .28], [np.median(v)] * 2, color="#1F1F1F", lw=1.2, zorder=4)
+            pos.append(i); labels.append(arm)
+        # pooled Fisher within cohort
+        h = df[df.armp == "Healthy"]; a = df[df.armp == "AD"]
+        orr, pf = stats.fisher_exact(
+            [[int(a.n_mast_t9pos.sum()), int(a.n_mast.sum() - a.n_mast_t9pos.sum())],
+             [int(h.n_mast_t9pos.sum()), int(h.n_mast.sum() - h.n_mast_t9pos.sum())]])
+        stat = (f"OR {orr:.1f}, P = {pf:.3f}" if pf >= .001
+                else f"OR {orr:.1f}, P < 0.001")
+        notes.append((k, name, stat))
+    ax.set_ylim(-0.4, 12.6)
+    for k, name, stat in notes:
+        xa = (k * 2.6 + .5) / 3.6 + .06        # data -> axes fraction
+        ax.text(xa, 1.005, name, transform=ax.transAxes, ha="center",
+                va="bottom", fontsize=5.6, color="#2B2B2B")
+        ax.text(xa, .95, stat, transform=ax.transAxes, ha="center",
+                va="top", fontsize=5.2, color="#4A4A4A")
+    ax.set_xticks(pos); ax.set_xticklabels(labels, fontsize=6)
+    ax.set_ylabel("TNFRSF9$^+$ (% of mast cells)", fontsize=6.2)
+    ax.set_title(r"$\bf{c}$", loc="left", fontsize=6.6, pad=12)
+
+    # ---- d. mast-cell recovery, and why REP1 is excluded ------------------
+    ax = fig.add_subplot(gs[0, 3])
+    rec = pd.DataFrame([
+        ("GSE153760", 4.41, True), ("GSE204762", 1.31, True),
+        ("GSE222840", 0.106, False)],
+        columns=["cohort", "pct", "ok"])
+    cols = [MUTED["mast"] if o else "#C9C9C9" for o in rec.ok]
+    ax.barh(np.arange(len(rec)), rec.pct, color=cols, edgecolor="none", height=.62)
+    ax.axvline(0.5, color="#8A8A8A", lw=.7, ls="--")
+    ax.text(0.55, 2.62, "threshold", fontsize=5.0, color="#5A5A5A",
+            va="top", ha="left")
+    for i, r in enumerate(rec.itertuples()):
+        ax.text(r.pct * 1.12, i, f"{r.pct:.2f}%", va="center", fontsize=5.4)
+    ax.set_yticks(np.arange(len(rec)))
+    ax.set_yticklabels(rec.cohort, fontsize=5.8)
+    ax.set_ylim(-0.6, 2.9)
+    ax.set_xscale("log")
+    ax.set_xlabel("mast cells (% of all cells)", fontsize=6.2)
+    ax.set_title(r"$\bf{d}$   mast-cell recovery", loc="left", fontsize=6.6, pad=4)
 
     fig.savefig(FIG / "fig5_replication.pdf")
     fig.savefig(FIG / "fig5_replication.png")
