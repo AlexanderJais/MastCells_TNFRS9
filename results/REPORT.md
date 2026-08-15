@@ -1,4 +1,4 @@
-# TNFRSF9 (CD137/4-1BB) is expressed by human cutaneous mast cells and is higher in atopic dermatitis in every cohort tested, but the magnitude does not replicate and mast cells are a minor source of skin TNFRSF9
+# TNFRSF9 (CD137/4-1BB) is an activation-induced gene in human cutaneous mast cells: absent at rest, switched on ~60-fold by IL-33 and IgE cross-linking, and modestly elevated in atopic dermatitis skin
 
 **Subject of this study: cutaneous mast cells.** Fibroblasts, keratinocytes,
 T/NK cells and macrophages appear throughout as control populations only, to
@@ -37,13 +37,28 @@ TNFRSF9 is the product of abundance and per-cell expression (§4), the product
 rises ~5-fold but does **not** reach significance (log₂FC +2.34, 95% CI −0.72 to
 5.39, P = 0.13), inheriting the variance of both factors.
 
-**Four findings temper the result, and one contradicts a tempting reading.**
+**In primary cells the mechanism is unambiguous.** Resting primary human *skin*
+mast cells are essentially TNFRSF9-negative (0.14 FPKM). IL-33 induces the gene
+29-fold, IgE-receptor cross-linking 7-fold, and the two together **59-fold**
+(8.66 FPKM); TSLP and IL-25 alone do nothing. A second cohort of primary mast
+cells reproduces it across 4 paired donors (IL-33 log₂FC +6.53, P = 0.001;
+activated CD4⁺ T cells +2.97, P = 0.003), with housekeeping and tryptase genes
+flat. **TNFRSF9 marks mast-cell activation state, and the two sufficient stimuli
+are precisely the two that define AD** (§2B, Fig. 6). This is why the in-vivo
+effect is real but heterogeneous: it tracks how activated the mast cells happened
+to be at biopsy, not disease identity — which also explains why psoriasis matches
+AD at tissue level.
 
-1. The discovery cohort shows TNFRSF9 essentially *absent* from healthy mast
-   cells (3 transcripts in 522,068 UMI; 5 of 6 donors at zero). **This
-   near-absence did not replicate**: in GSE153760 healthy mast cells carried
-   TNFRSF9 at 0.21 per 10k (6 transcripts, 2.2% of cells). A "de-novo induction"
-   description fits the discovery cohort and not the replication.
+**Four findings temper the in-vivo result, and one contradicts a tempting reading.**
+
+1. The "off in health, on in disease" reading is **correct in principle but not
+   absolute in tissue**. In primary cells the resting state really is
+   near-negative (0.14 FPKM), and the discovery cohort matches that (3
+   transcripts in 522,068 UMI; 5 of 6 donors at zero). But healthy skin in vivo
+   is not a resting culture: GSE153760 healthy mast cells carried TNFRSF9 at
+   0.21 per 10k (6 transcripts, 2.2% of 278 cells). Baseline activation in
+   normal skin is expected on this model, so a strict de-novo claim overstates
+   it — the in-vivo axis is graded activation, not a binary switch.
 2. The increase is not exceptional: among 3,454 abundance-matched genes, 289
    shift more strongly, placing TNFRSF9 at empirical P = 0.084. The mast-cell
    transcriptome differs broadly in AD (17.8% of matched genes at P ≤ 0.05
@@ -254,6 +269,87 @@ per-UMI fraction, which is precisely why the adjusted estimate (8.2×) exceeds t
 unadjusted one (6.1×). Normalising by total UMI measures TNFRSF9 as a *share of
 the mast-cell transcriptome*, not molecules per cell; where the transcriptome
 itself changes size, those are different questions and both are reported above.
+
+---
+
+## 2B. The controlled experiment: TNFRSF9 is an activation-induced gene in primary human mast cells
+
+Every tissue analysis above is confounded in the same way: it cannot separate
+"mast cells transcribe more TNFRSF9 in AD" from "AD skin holds a different
+mast-cell population". A stimulation experiment can. Two public datasets perform
+exactly that experiment on **primary** human mast cells, with no dissociation
+artefact, no ambient RNA, no doublets and no depth confound.
+
+### 2B.1 Primary human SKIN mast cells + the AD milieu (GSE196862)
+
+Human skin-derived mast cells, stimulated for 24 h with IgE-receptor
+cross-linking and the epithelial alarmins IL-33, TSLP and IL-25, alone and
+combined (24 libraries, 2–4 replicates per condition).
+
+| Condition | TNFRSF9 (FPKM) | log₂FC vs resting |
+|---|---|---|
+| **resting** | **0.14** | — |
+| TSLP | 0.11 | −0.28 |
+| IL-25 | 0.11 | −0.32 |
+| IgE/Ag | 1.07 | +2.87 (7×) |
+| IL-33 | 4.33 | +4.88 (29×) |
+| IL-33+IL-25+TSLP | 3.76 | +4.67 |
+| **IgE/Ag + IL-33** | **8.66** | **+5.88 (59×)** |
+| IgE/Ag + all three alarmins | 7.96 | +5.75 |
+
+Resting skin mast cells are **essentially TNFRSF9-negative** (individual
+replicates 0.011, 0.047, 0.006, 0.487 FPKM). IL-33 and FcεRI cross-linking each
+induce the gene, and together they synergise to ~59-fold. TSLP and IL-25 alone do
+nothing, so this is not a generic cytokine response.
+
+**The induction is specific, not global.** In the same libraries the housekeeping
+genes are flat (B2M +0.34, RPL13A −0.23, TMSB4X +0.19 under IgE+IL-33) and the
+mast-cell identity genes barely move (TPSAB1 −0.29, TPSB2 +0.02). Among
+co-stimulatory TNF-receptor relatives, TNFRSF9 has both the lowest resting level
+(0.14 FPKM versus 1.6–1.8 for TNFRSF18 and TNFRSF4) and the largest induction
+(+5.88 versus +3.20 and +0.73). It is the most switch-like member of the family
+in this cell type.
+
+### 2B.2 Primary human mast cells + activated CD4⁺ T cells (GSE235240)
+
+Four donors, paired design, mast cells FACS-sorted after 24 h of co-culture.
+
+| Condition | TNFRSF9 (normalised counts) | paired log₂FC | P | n donors |
+|---|---|---|---|---|
+| resting | 103 | — | — | 4 |
+| resting CD4⁺ T cells | 133 | +0.26 | 0.17 | 4 |
+| **activated CD4⁺ T cells** | 768 | **+2.97** | **0.003** | 4 |
+| IgE/Ag | 4,148 | +5.51 | 0.001 | 4 |
+| **IL-33** | **9,079** | **+6.53 (92×)** | **0.001** | 4 |
+
+The same ordering reproduces in an independent cohort with an independent
+stimulus: IL-33 > IgE/Ag > activated T cells > resting T cells ≈ unstimulated.
+Tryptase genes are unchanged (TPSAB1 log₂FC −0.04, P = 0.61, n = 4 donors), so
+this is not a differentiation or viability effect.
+
+### 2B.3 What this settles, and what it does not
+
+**It settles the mechanism.** TNFRSF9 in mast cells is an activation-induced
+gene, switched on from a near-zero baseline by exactly the two signals that
+define atopic dermatitis: IL-33 released by damaged keratinocytes, and IgE
+cross-linking on FcεRI. This is a *measured* result in primary cells, not an
+inference from tissue.
+
+**It explains the tissue data, including the parts that did not replicate.**
+If TNFRSF9 marks mast-cell activation state rather than disease identity, then
+(i) healthy skin mast cells should be near-zero — they are; (ii) AD mast cells
+should be positive to a degree that depends on how activated they were at the
+moment of biopsy — which predicts exactly the between-cohort heterogeneity
+observed (I² = 42–58%, §2); and (iii) the tissue-level rise should *not* be
+AD-specific, because any inflammation that activates mast cells would do the
+same — psoriasis matches it (§8).
+
+**It does not settle the disease question.** These are in-vitro stimulations, not
+AD skin. They establish that mast cells *can* express TNFRSF9 on demand and
+identify the sufficient stimuli; they do not establish how much of the in-vivo
+AD signal comes from this pathway, nor that 4-1BB protein reaches the mast-cell
+surface, nor any functional consequence. The in-vivo effect size remains the
+heterogeneous, modest one reported in §2.
 
 ---
 

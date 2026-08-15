@@ -93,6 +93,18 @@ Every analysis script that makes a group comparison should import and use
 
 *Last updated: 2026-08-15. Evidence: `results/REPORT.md`, tables in `results/tables/`.*
 
+**Q0 — MECHANISM (in-vitro, primary cells).** TNFRSF9 is an ACTIVATION-INDUCED
+gene in primary human mast cells. Resting human SKIN mast cells are essentially
+negative (0.14 FPKM). IL-33 induces 29x, IgE/FcεRI cross-linking 7x, both
+together 59x (8.66 FPKM); TSLP and IL-25 alone do nothing (GSE196862).
+Reproduced in 4 paired donors: IL-33 log2FC +6.53 (P=0.001), IgE +5.51
+(P=0.001), activated CD4+ Teff +2.97 (P=0.003), resting T cells no change
+(GSE235240). Housekeeping and tryptase genes flat -> specific, not global.
+TNFRSF9 has the lowest resting baseline and the largest induction of the
+co-stimulatory TNFRSF members tested. **The two sufficient stimuli are the two
+that define AD.** This explains the in-vivo heterogeneity (activation state at
+biopsy) and why psoriasis matches AD at tissue level.
+
 **Q1 — Is TNFRSF9 expressed in cutaneous mast cells in AD?**
 **Yes, at low level.** 2.4–2.6% of AD mast cells carry a TNFRSF9 transcript
 (0.36–0.47 per 10k mast UMI) in the two cohorts with adequate mast-cell

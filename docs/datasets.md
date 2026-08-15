@@ -38,3 +38,14 @@ single-nucleus; spatial platforms included; bulk included.
   labelled `chronic_lesion`; both are treated as lesional AD.
 * Chemistry is mixed within the discovery cohort (one 3′ v2 sample per arm,
   the rest v3) and between replication cohorts (5′ in REP1, 3′ v3 in REP2).
+
+## In-vitro stimulation cohorts (added to test the mechanism directly)
+
+| Cohort | Accession | Cells | Design | Role |
+|---|---|---|---|---|
+| Skin mast cells + AD milieu | **GSE196862** | Primary human **skin**-derived mast cells (HSMCs) | 24 libraries: unstimulated, IgE/Ag cross-linking, IL-33, TSLP, IL-25 and combinations; Cufflinks FPKM | Tests whether TNFRSF9 is inducible in the correct cell type and tissue by the AD-defining stimuli |
+| Mast cells + activated T cells | **GSE235240** | Primary human mast cells, FACS-sorted after co-culture | 4 donors, paired: control, resting CD4⁺ Teff, anti-CD3/CD28-activated CD4⁺ Teff, IL-33, IgE/Ag | Independent confirmation with an independent stimulus and a paired donor design |
+
+These are in-vitro systems, so they establish sufficiency of a stimulus, not the
+in-vivo contribution. They are reported in §2B of the report as *measured* results
+in primary cells, distinct from the *modelled* tissue estimates.
