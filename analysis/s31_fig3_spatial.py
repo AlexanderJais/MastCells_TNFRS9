@@ -51,27 +51,55 @@ def section_image(name: str):
     return img, sf
 
 
+def spot_pitch(d: pd.DataFrame, sf: float) -> float:
+    """Centre-to-centre spot spacing in display (lowres-image) units.
+
+    Visium spot pitch is constant within a capture area but the fullres pixel
+    scale differs between samples (109-227 px here), so a fixed marker size
+    renders one section as a clean lattice and another as a merged blob.
+    """
+    from scipy.spatial import cKDTree
+    xy = d[["x", "y"]].dropna().values.astype(float) * sf
+    if len(xy) < 5:
+        return 1.0
+    dist, _ = cKDTree(xy).query(xy, k=2)
+    return float(np.median(dist[:, 1]))
+
+
 def panel(ax, s: pd.DataFrame, name: str, mode: str):
+    """Draw one section. Marker sizes are set later, once the axes geometry is
+    final, so that every section is drawn at true spot scale."""
     img, sf = section_image(name)
     ax.imshow(img)
     d = s[s["sample"] == name]
     x, y = d.x.values * sf, d.y.values * sf
     # crop to the tissue itself: the capture area is mostly empty slide
-    mx, my = .06 * (x.max() - x.min()), .06 * (y.max() - y.min())
-    ax.set_xlim(x.min() - mx, x.max() + mx)
-    ax.set_ylim(y.max() + my, y.min() - my)
+    cx, cy = (x.max() + x.min()) / 2, (y.max() + y.min()) / 2
+    w, h = (x.max() - x.min()) * 1.10, (y.max() - y.min()) * 1.10
+    side = max(w, h)                      # square crop -> no letterboxing
+    ax.set_xlim(cx - side / 2, cx + side / 2)
+    ax.set_ylim(cy + side / 2, cy - side / 2)
+    pitch = spot_pitch(d, sf)
     if mode == "mast":
         tryp = d[[f"g_{g}" for g in MAST_QC]].sum(axis=1)
         v = np.log1p(1e4 * tryp / d.total_counts)
-        sc = ax.scatter(x, y, c=v, s=1.9, lw=0, cmap="BuPu", vmin=0, vmax=4.2,
+        sc = ax.scatter(x, y, c=v, s=1, lw=0, cmap="BuPu", vmin=0, vmax=4.2,
                         rasterized=True)
-        return sc
-    ax.scatter(x, y, c="#D9D9D9", s=1.5, lw=0, rasterized=True)
+        return sc, pitch, 0.92
+    sc = ax.scatter(x, y, c="#D2D2D2", s=1, lw=0, rasterized=True)
     pos = d[d[f"g_{TARGET}"] > 0]
     arm = d.arm.iat[0]
-    ax.scatter(pos.x.values * sf, pos.y.values * sf, s=17, lw=.4,
-               facecolor=ARM_COL[arm], edgecolor="#1F1F1F", zorder=5)
-    return None
+    hit = ax.scatter(pos.x.values * sf, pos.y.values * sf, s=1, lw=.4,
+                     facecolor=ARM_COL[arm], edgecolor="#141414", zorder=5)
+    return (sc, hit), pitch, 0.92
+
+
+def size_for(ax, fig, pitch: float, frac: float) -> float:
+    """Marker area in points^2 that makes a spot `frac` of the true spot pitch."""
+    p0 = ax.transData.transform((0.0, 0.0))
+    p1 = ax.transData.transform((pitch, 0.0))
+    d_pt = abs(p1[0] - p0[0]) * 72.0 / fig.dpi
+    return max((d_pt * frac) ** 2, 0.5)
 
 
 def main() -> int:
@@ -79,15 +107,18 @@ def main() -> int:
     s = pd.read_parquet(PROC / "spots.parquet")
     s = s[s.total_counts >= 200]
 
-    fig = plt.figure(figsize=(DOUBLE_COL, DOUBLE_COL * 0.80))
-    gs = fig.add_gridspec(3, 6, height_ratios=[1, 1, 1.15], hspace=0.30, wspace=0.20)
+    fig = plt.figure(figsize=(DOUBLE_COL, DOUBLE_COL * 0.72))
+    gs = fig.add_gridspec(3, 6, height_ratios=[1, 1, 1.05], hspace=0.14, wspace=0.14)
+    gsb = gs[2, :].subgridspec(1, 3, wspace=0.62)
 
     # ---- rows 1-2: in-situ maps ------------------------------------------
+    pending = []           # (axes, scatter handles, pitch, size fraction)
     for j, name in enumerate(SECTIONS):
         d = s[s["sample"] == name]
         arm = d.arm.iat[0]
         ax = fig.add_subplot(gs[0, j])
-        sc = panel(ax, s, name, "mast")
+        sc, pitch, frac = panel(ax, s, name, "mast")
+        pending.append((ax, [sc], pitch, frac))
         ax.set_xticks([]); ax.set_yticks([])
         for sp in ax.spines.values():
             sp.set_visible(False)
@@ -97,7 +128,9 @@ def main() -> int:
             ax.set_ylabel("tryptase/CPA3", fontsize=6)
 
         ax2 = fig.add_subplot(gs[1, j])
-        panel(ax2, s, name, "t9")
+        (bg, hit), pitch2, frac2 = panel(ax2, s, name, "t9")
+        pending.append((ax2, [bg], pitch2, frac2))
+        pending.append((ax2, [hit], pitch2, 1.15))  # TNFRSF9+ spots: ~1 spot wide
         ax2.set_xticks([]); ax2.set_yticks([])
         for sp in ax2.spines.values():
             sp.set_visible(False)
@@ -106,13 +139,20 @@ def main() -> int:
                       fontsize=5.2, pad=2)
         if j == 0:
             ax2.set_ylabel("TNFRSF9", fontsize=6)
-    cax = fig.add_axes([0.905, 0.62, 0.008, 0.16])
+    # geometry is final only after a draw; size every marker to its own grid
+    fig.canvas.draw()
+    for ax_, handles, pitch, frac in pending:
+        s_pts = size_for(ax_, fig, pitch, frac)
+        for h in handles:
+            h.set_sizes([s_pts])
+
+    cax = fig.add_axes([0.915, 0.68, 0.008, 0.15])
     cb = fig.colorbar(sc, cax=cax)
     cb.set_label("log(1+tryptase per 10k)", fontsize=5.0)
     cb.ax.tick_params(labelsize=4.6)
 
     # ---- row 3a: group comparison (depth-adjusted) -----------------------
-    ax = fig.add_subplot(gs[2, 0:2])
+    ax = fig.add_subplot(gsb[0, 0])
     A = pd.read_csv(TAB / "spatial_group_glm.csv")
     A = A[(A.gene == TARGET)].set_index("comparison")
     comps = [G.PRIMARY, "Healthy_vs_AD_NL", "Healthy_vs_AD_LS"]
@@ -129,7 +169,7 @@ def main() -> int:
     ax.set_title("g   TNFRSF9 per spot", loc="left", fontweight="bold")
 
     # ---- row 3b: in-situ co-localisation ---------------------------------
-    ax = fig.add_subplot(gs[2, 2:4])
+    ax = fig.add_subplot(gsb[0, 1])
     B = pd.read_csv(TAB / "spatial_colocalisation.csv")
     order = ["Healthy", "AD_NL", "AD_LS"]
     w = .26
@@ -143,13 +183,13 @@ def main() -> int:
                     fmt="none", ecolor="#6B6B6B", elinewidth=.6, capsize=1.2)
     ax.axhline(0, color="#B0B0B0", lw=.6)
     ax.set_xticks(np.arange(len(order)))
-    ax.set_xticklabels([ARM_LAB[a] for a in order], fontsize=5.4)
+    ax.set_xticklabels(["Healthy", "AD NL", "AD LS"], fontsize=6)
     ax.set_ylabel("log$_2$ TNFRSF9 per SD content", fontsize=6, labelpad=1)
     ax.legend(fontsize=5, loc="upper left")
     ax.set_title("h   in-situ co-localisation", loc="left", fontweight="bold")
 
     # ---- row 3c: per-section rate ----------------------------------------
-    ax = fig.add_subplot(gs[2, 4:])
+    ax = fig.add_subplot(gsb[0, 2])
     per = s.groupby("sample").apply(lambda d: pd.Series({
         "arm": d.arm.iat[0],
         "rate": 1e4 * d[f"g_{TARGET}"].sum() / d.total_counts.sum(),
