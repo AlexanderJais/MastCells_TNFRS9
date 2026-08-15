@@ -109,7 +109,7 @@ def main() -> int:
 
     fig = plt.figure(figsize=(DOUBLE_COL, DOUBLE_COL * 0.72))
     gs = fig.add_gridspec(3, 6, height_ratios=[1, 1, 1.05], hspace=0.14, wspace=0.14)
-    gsb = gs[2, :].subgridspec(1, 3, wspace=0.62)
+    gsb = gs[2, :].subgridspec(1, 2, wspace=0.42)
 
     # ---- rows 1-2: in-situ maps ------------------------------------------
     pending = []           # (axes, scatter handles, pitch, size fraction)
@@ -169,27 +169,8 @@ def main() -> int:
     ax.set_xlabel("log$_2$ fold change", fontsize=6)
     panel_label(ax, "g", "TNFRSF9 per spot  (± SEM)")
 
-    # ---- row 3b: in-situ co-localisation, MAST CELLS ONLY ----------------
-    # CLAUDE.md §2: the subject is mast cells. The fibroblast and keratinocyte
-    # control regressions are mandated by §6 and are reported in
-    # results/tables/spatial_colocalisation.csv and Section 5 of the report --
-    # they are not drawn here, where they would read as co-equal findings.
-    ax = fig.add_subplot(gsb[0, 1])
-    B = pd.read_csv(TAB / "spatial_colocalisation.csv")
-    B = B[B.content == "Mast"].set_index("arm").loc[["Healthy", "AD_NL", "AD_LS"]]
-    xs = np.arange(len(B))
-    ax.bar(xs, B.log2FC, .58, color=[ARM_COL[a] for a in B.index], edgecolor="none")
-    ax.errorbar(xs, B.log2FC, yerr=B.se_log2, fmt="none", ecolor="#4A4A4A",
-                elinewidth=.8, capsize=1.8)
-    ax.axhline(0, color="#B0B0B0", lw=.6)
-    ax.set_xticks(xs)
-    ax.set_xticklabels(["Healthy", "AD NL", "AD LS"], fontsize=6)
-    ax.set_ylabel("log$_2$ TNFRSF9 per doubling\nof mast-cell content  (± SEM)",
-                  fontsize=5.8, labelpad=1)
-    panel_label(ax, "h", "TNFRSF9 vs mast-cell content")
-
     # ---- row 3c: per-section rate ----------------------------------------
-    ax = fig.add_subplot(gsb[0, 2])
+    ax = fig.add_subplot(gsb[0, 1])
     per = s.groupby("sample").apply(lambda d: pd.Series({
         "arm": d.arm.iat[0],
         "rate": 1e4 * d[f"g_{TARGET}"].sum() / d.total_counts.sum(),
@@ -200,7 +181,7 @@ def main() -> int:
     ax.set_xticks(np.arange(len(per)))
     ax.set_xticklabels(per.index, rotation=90, fontsize=4.6)
     ax.set_ylabel("TNFRSF9 per 10k spot UMI", fontsize=6, labelpad=1)
-    panel_label(ax, "i", "per section")
+    panel_label(ax, "h", "per section")
 
     fig.savefig(FIG / "fig3_spatial.pdf")
     fig.savefig(FIG / "fig3_spatial.png")

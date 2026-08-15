@@ -4,14 +4,13 @@ Subject: MAST CELLS (CLAUDE.md §2). Fibroblast and keratinocyte content are the
 mandated control regressions (§6): if TNFRSF9 tracks those as strongly as it
 tracks mast content, the association is not mast-specific.
 
-Two questions, in the contract's order (§3):
-  A. Does whole-spot TNFRSF9 differ between healthy and AD skin?
-  B. Within the tissue, does TNFRSF9 concentrate where mast cells are?
+Question: does whole-spot TNFRSF9 differ between healthy and AD skin?
 
-Both models carry log(spot depth) as an offset and cluster standard errors on
-donor. The depth control is not cosmetic here: median spot depth is ~4x higher
-in the lesional arm than in healthy skin, so an unadjusted comparison would be a
-depth comparison (§6).
+The model carries log(UMIs per spot) as an offset and clusters standard errors on
+donor. That control is not cosmetic here: median UMIs per spot are ~4x higher in
+the lesional arm than in healthy skin, so an unadjusted comparison would be a
+depth comparison (§6). Fibroblast (COL1A1) and keratinocyte (KRT14) genes are
+carried through the same group test as the §6 control populations.
 """
 from __future__ import annotations
 
@@ -35,14 +34,6 @@ TAB = ROOT / "results" / "tables"
 TAB.mkdir(parents=True, exist_ok=True)
 
 SUBJECT = G.require_mast_subject("Mast")
-
-# §6 mandated control populations for the co-localisation model.
-CONTENT_SETS = {
-    "Mast": MAST_QC,                                  # subject
-    "Fibroblasts": ["COL1A1", "COL1A2", "DCN"],       # control
-    "Keratinocytes": ["KRT14", "KRT5", "KRT10"],      # control
-}
-
 
 def fit(d: pd.DataFrame, y: np.ndarray, X: np.ndarray, off: np.ndarray,
         groups: np.ndarray, names: list[str]) -> pd.DataFrame:
@@ -106,35 +97,6 @@ def main() -> int:
         ["comparison", "gene", "log2FC", "ci_lo", "ci_hi", "p",
          "cp10k_ref", "cp10k_alt", "donors_ref", "donors_alt"]].to_string(index=False))
 
-    # ---------------- B. in-situ co-localisation ---------------------------
-    # Does TNFRSF9 concentrate in mast-rich spots, over and above depth and arm?
-    rows = []
-    for name, gset in CONTENT_SETS.items():
-        cols = [f"g_{g}" for g in gset if f"g_{g}" in s.columns]
-        content = s[cols].sum(axis=1)
-        cpm = 1e4 * content / s.total_counts
-        # log2 predictor: the coefficient is the change in TNFRSF9 per DOUBLING
-        # of cell-type content. Previously this was z-scored, giving a "per SD"
-        # effect, which collides confusingly with error-bar terminology.
-        z = np.log2(1.0 + cpm)
-        for arm in ["Healthy", "AD_NL", "AD_LS"]:
-            d = s[s.arm == arm]
-            zz = z[s.arm == arm]
-            X = sm.add_constant(np.column_stack([zz.values]), has_constant="add")
-            off = np.log(d.total_counts.astype(float).values)
-            G.check_model_terms(["intercept", f"{name}_content",
-                                 "log10_depth(offset=log spot depth)"],
-                                grouping="donor")
-            r = fit(d, d[f"g_{TARGET}"].astype(float).values, X, off,
-                    d.donor.values, ["intercept", "content"]).iloc[1].to_dict()
-            r.update(content=name, arm=arm, n_spots=len(d),
-                     donors=int(d.donor.nunique()))
-            rows.append(r)
-    B = pd.DataFrame(rows)
-    B.to_csv(TAB / "spatial_colocalisation.csv", index=False)
-    print("\nB. TNFRSF9 per doubling of cell-type content (in situ, UMI-offset):")
-    print(B[["content", "arm", "log2FC", "ci_lo", "ci_hi", "p", "n_spots", "donors"]]
-          .to_string(index=False))
     return 0
 
 

@@ -214,9 +214,11 @@ def _audit_prose(problems: list[str]) -> None:
         for block in re.split(r"\n\s*\n", text):
             if BARE_P_RE.search(block):
                 # accept Unicode subscripts (log₂FC) as well as ASCII
+                # A group median or rate reported per arm IS the effect size for a
+                # rank test, so it counts; a lone P value still does not.
                 has_effect = re.search(
-                    r"log[2₂]?\s?FC|logFC|fold|OR\s*=|β|beta|rate ratio|RR\s*=|"
-                    r"estimate|%|prevalence|Cliff|d\s*=",
+                    r"log[2₂]?\s?FC|logFC|fold|OR\s*=|odds ratio|β|beta|rate ratio|"
+                    r"RR\s*=|estimate|%|prevalence|Cliff|d\s*=|median|rho|per 10",
                     block, re.I)
                 has_n = re.search(r"\bn\s*=|\bN\s*=|donors?\b|cells\b|samples?\b|spots\b",
                                   block, re.I)

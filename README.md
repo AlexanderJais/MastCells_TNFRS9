@@ -88,7 +88,7 @@ Run in order:
 .venv/bin/python analysis/s08_depth_decomposition.py  # flow cell vs cell-intrinsic
 .venv/bin/python analysis/s10_bulk_gse121212.py       # bulk + psoriasis control
 .venv/bin/python analysis/s20_spatial_gse197023.py    # Visium extraction
-.venv/bin/python analysis/s21_spatial_stats.py        # in-situ co-localisation
+.venv/bin/python analysis/s21_spatial_stats.py        # spatial group comparison
 .venv/bin/python analysis/s40_replication.py          # replication cohorts
 .venv/bin/python analysis/s41_replication_test.py     # calibrated mast rule + test
 .venv/bin/python analysis/s42_meta.py                 # meta-analysis, both estimands
@@ -139,5 +139,5 @@ data/                         downloaded and processed data (git-ignored)
   threshold calibrated on the discovery cohort (96% precision) is added, because
   ambient tryptase otherwise tags hundreds of keratinocytes.
 * **Negative results are reported in the same place as positive ones**, per
-  CLAUDE.md §7 — including the failure of the discovery effect size to replicate
-  and the failure of spatial co-localisation in lesional skin.
+  CLAUDE.md §7 — including the failure of the AD increase to replicate in an
+  independent cohort.

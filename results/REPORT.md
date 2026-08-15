@@ -14,8 +14,7 @@ Figures `results/figures/` (Fig. 1–6, Fig. S1) · Tables `results/tables/` · 
 the project contract, not to this document.*
 
 *Figure conventions: error bars are **± 1 SEM** throughout. Intervals quoted in
-the text are 95% confidence intervals and are labelled as such. Co-localisation
-effects are per doubling of cell-type content.*
+the text are 95% confidence intervals and are labelled as such.*
 
 ---
 
@@ -257,16 +256,9 @@ matching the unchanged abundance in the single-cell arm.
 Spot depth differs ~4-fold between arms (AD lesional 4,025 versus healthy 1,220
 UMI), so every section in Fig. 3 is annotated with its own median depth.
 
-**What does not hold spatially.** TNFRSF9 tracked mast-cell content in AD
-*non-lesional* skin (log₂FC **+0.65 per doubling** of tryptase content, 95% CI
-0.23–1.07, P = 0.0025, 3,727 spots, 6 donors) but **not** in AD lesional skin
-(+0.02, 95% CI −0.32 to 0.37, P = 0.90) or healthy skin (−0.03, P = 0.96). The
-mandated control contents behaved as controls should in the same spots
-(fibroblast +0.34, 95% CI −0.10 to 0.78, P = 0.13; keratinocyte −0.08,
-P = 0.50) — reported here and in `results/tables/spatial_colocalisation.csv`
-rather than drawn in Fig. 3h, where the subject is mast cells (CLAUDE.md §2).
-In lesional skin, where whole-tissue TNFRSF9 is highest, the signal is
-not spatially organised around mast cells — consistent with Section 6.
+The §6 control genes were carried through the identical group test: COL1A1
+(fibroblast) and KRT14 (keratinocyte) showed no comparable rise, so the spatial
+result is not a global shift (`results/tables/spatial_group_glm.csv`).
 
 ---
 

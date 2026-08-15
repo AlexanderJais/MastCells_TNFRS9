@@ -59,8 +59,7 @@ def main() -> int:
     ax.set_xticks(np.arange(len(order)))
     ax.set_xticklabels([NICE[o] for o in order], rotation=45, ha="right", fontsize=5.2)
     ax.set_ylabel(f"{TARGET} (FPKM)", fontsize=6.2)
-    ax.set_title("a   primary human SKIN mast cells (GSE196862)",
-                 loc="left", fontweight="bold", fontsize=6.6)
+    panel_label(ax, "a", "primary human skin mast cells")
     ax.text(.02, .95, "resting FPKM 0.14\nIgE+IL-33 → 8.7  (59×)", transform=ax.transAxes,
             fontsize=5.4, va="top", color="#4A4A4A")
 
@@ -93,8 +92,7 @@ def main() -> int:
     ax.set_xticks(np.arange(len(conds)))
     ax.set_xticklabels([TEFF_NICE[c] for c in conds], rotation=45, ha="right", fontsize=5.2)
     ax.set_ylabel(f"{TARGET} (normalised counts)", fontsize=6.0, labelpad=1)
-    ax.set_title("c   4 donors, paired (GSE235240)", loc="left",
-                 fontweight="bold", fontsize=6.6)
+    panel_label(ax, "c", "4 donors, paired")
     for i, c in enumerate(conds):
         p = T.get(f"p_{c}")
         if p is not None and np.isfinite(T.loc[TARGET, f"p_{c}"]):
