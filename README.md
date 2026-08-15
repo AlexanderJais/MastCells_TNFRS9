@@ -35,6 +35,9 @@ violation.
   *selectively* dysregulated.
 
 Full write-up: **[`results/REPORT.md`](results/REPORT.md)**.
+Report, figures and legends as one document:
+**[`results/TNFRSF9_mast_cells_AD_report.pdf`](results/TNFRSF9_mast_cells_AD_report.pdf)**.
+Figure legends: **[`results/FIGURE_LEGENDS.md`](results/FIGURE_LEGENDS.md)**.
 Protein-level evidence: **[`results/PROTEIN_EVIDENCE.md`](results/PROTEIN_EVIDENCE.md)**.
 
 ---
@@ -94,6 +97,7 @@ Run in order:
 .venv/bin/python analysis/s42_meta.py                 # meta-analysis, both estimands
 .venv/bin/python analysis/s50_invitro_stimulation.py  # the mechanism
 .venv/bin/python analysis/s3*.py                      # figures 1-6, fig S1
+.venv/bin/python analysis/s60_build_pdf.py            # report + figures + legends -> PDF
 python3 analysis/guardrails.py                        # contract audit
 ```
 
@@ -116,6 +120,8 @@ analysis/
 docs/datasets.md              every dataset screened, used or excluded, with reasons
 results/
   REPORT.md                   the manuscript
+  FIGURE_LEGENDS.md           figure legends
+  TNFRSF9_mast_cells_AD_report.pdf   report, figures and legends in one document
   PROTEIN_EVIDENCE.md         protein-level evidence assessment
   figures/                    fig1-6, PDF + PNG
   tables/                     every number in the report, as CSV
