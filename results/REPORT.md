@@ -7,7 +7,7 @@ macrophages appear in this report in exactly one role — as control populations
 to show that a mast-cell result is specific and not a batch or global effect
 (CLAUDE.md §2).
 
-Figures `results/figures/` · Tables `results/tables/` · Datasets and exclusions
+Figures `results/figures/` (Fig. 1–6, Fig. S1) · Tables `results/tables/` · Datasets and exclusions
 `docs/datasets.md` · Contract compliance `python3 analysis/guardrails.py`
 
 *Sections below are numbered 1–9. References of the form "CLAUDE.md §N" point to
@@ -61,25 +61,37 @@ Section 7.1 sets out what follows from that, and why per-cell UMI is *not*
 
 ## 2. Healthy versus AD: the primary comparison (CLAUDE.md §3)
 
-### 2.1 Abundance × per-cell expression, as one quantity (CLAUDE.md §4)
+### 2.1 Mast-cell numbers and TNFRSF9⁺ mast-cell numbers
 
-| Quantity | Healthy | AD | Effect | Test |
+Each point in Fig. 2 is one sample (one donor × arm); statistics are donor-level
+Mann–Whitney against the healthy arm, plus a pooled Fisher exact test on raw
+TNFRSF9⁺ cell counts.
+
+| Quantity | Healthy | AD non-lesional | AD lesional | MWU vs healthy (NL / LS) |
 |---|---|---|---|---|
-| **F1 · abundance** (mast % of all cells) | 1.47% | 1.41% | log₂OR +0.66 (−0.78 to 2.10) | binomial GLM, donor-clustered, P = 0.37 |
-| **F2 · per-cell expression** (TNFRSF9 per mast cell) | 0.56 /100 cells | 3.43 /100 cells | log₂FC **+2.40 (6.1×)** | exact donor permutation, **P = 0.030** |
-| **PRODUCT · F1 × F2** (mast TNFRSF9 per unit tissue) | 2.3×10⁻⁴ /10k | 1.2×10⁻³ /10k | log₂FC +2.34 (−0.72 to 5.39) | Poisson GLM, donor-clustered, P = 0.13 |
+| Samples (donors) | 6 (6) | 10 (10) | 11 (11) | — |
+| Cells profiled | 59,745 | 97,947 | 122,826 | — |
+| **Mast cells recovered** | **538** | **1,564** | **1,559** | — |
+| Mast cells per sample, median | 99.5 | 131 | 151 | P = 0.37 / 0.26 |
+| **Mast cells, % of all cells** (median) | **1.47%** | **1.30%** | **1.21%** | **P = 0.79 / 1.00** |
+| **TNFRSF9⁺ mast cells** | **3** | **52** | **39** | — |
+| TNFRSF9⁺ per sample, median | 0 | 2.5 | 2.0 | P = 0.036 / 0.106 |
+| **TNFRSF9⁺ as % of mast cells** | **0.56%** | **3.33%** | **2.50%** | **P = 0.020 / 0.090** |
 
-n = 6 healthy donors (538 mast cells), 11 AD donors (3,123 mast cells).
+**Pooled healthy versus AD: 3 of 538 versus 91 of 3,123 mast cells are TNFRSF9⁺
+(Fisher OR 5.35, P = 5.3×10⁻⁴).**
 
-The two factors and their product are one quantity and are reported together.
-**The per-cell factor carries the entire effect; abundance does not move.** The
-product is directionally consistent but underpowered, inheriting the variance of
-both factors.
+Read together, as CLAUDE.md §4 requires: **mast-cell abundance does not differ
+between healthy and AD skin (1.47% versus 1.30%/1.21% of cells, P = 0.79/1.00),
+while the fraction of mast cells carrying TNFRSF9 rises about 5-fold (0.56% to
+2.50–3.33%).** The change is in what mast cells express, not in how many there
+are. Five of six healthy donors contributed no TNFRSF9⁺ mast cell at all.
 
-Normalising per-cell expression by mast-cell UMI rather than cell count gives a
-larger effect (0.057 → 0.469 per 10k, log₂FC +2.81, P = 0.012, n = 6 vs 11
-donors). Section 7.1
-explains why the per-cell number is the one quoted here.
+A per-transcript version of the same contrast — TNFRSF9 molecules per mast cell,
+which uses all 110 transcripts rather than only presence/absence — gives log₂FC
++2.40 (6.1×, exact donor permutation P = 0.030, n = 6 vs 11 donors); normalising
+by mast-cell UMI instead gives +2.81 (P = 0.012). Section 7.1 explains why the
+per-cell version is the one quoted.
 
 ### 2.2 Healthy versus AD non-lesional, and versus AD lesional
 
@@ -377,7 +389,7 @@ cohort has no power to spare.
 * **Is TNFRSF9 exceptional?** No. The real contrast yields 17.8% of matched genes
   at P ≤ 0.05 — far outside the null range — so the mast-cell transcriptome
   differs widely between healthy and AD skin. Against that background TNFRSF9
-  ranks 290 of 3,454 (empirical P = 0.084, Fig. 2e).
+  ranks 290 of 3,454 (empirical P = 0.084, Fig. S1b).
 
 TNFRSF9 induction in AD mast cells is a real, calibrated nominal result in the
 top 8% of a broad disease-associated shift — but it is *one of many* genes

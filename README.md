@@ -92,7 +92,7 @@ Run in order:
 .venv/bin/python analysis/s41_replication_test.py     # calibrated mast rule + test
 .venv/bin/python analysis/s42_meta.py                 # meta-analysis, both estimands
 .venv/bin/python analysis/s50_invitro_stimulation.py  # the mechanism
-.venv/bin/python analysis/s3{0,2,1,3,4,5}_*.py        # figures 1-6
+.venv/bin/python analysis/s3*.py                      # figures 1-6, fig S1
 python3 analysis/guardrails.py                        # contract audit
 ```
 
@@ -109,7 +109,7 @@ analysis/
   s0*.py                      discovery cohort: extraction, core analysis, rigour checks
   s1*.py                      bulk arm
   s2*.py                      spatial arm
-  s3*.py                      figures 1-6
+  s3*.py                      figures 1-6 and supplementary figure 1
   s4*.py                      replication + meta-analysis
   s5*.py                      in-vitro mechanism
 docs/datasets.md              every dataset screened, used or excluded, with reasons

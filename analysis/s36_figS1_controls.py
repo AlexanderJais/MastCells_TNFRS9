@@ -1,9 +1,9 @@
-"""Figure 2 — abundance x per-cell expression, controls, and calibration.
+"""Supplementary Figure 1 — the CLAUDE.md §6 controls and the calibration.
 
-CLAUDE.md §4: mast-cell-derived TNFRSF9 is one quantity with two factors. Panels
-a-c show both factors and their product on the same row, never as separate
-questions. Panels d-f are the §6 controls and the empirical calibration that
-decides how much the result is worth.
+These are the checks that decide how much the main result is worth: the mandated
+control populations, the empirical calibration against abundance-matched genes,
+and the dissociation-stress burden per arm. The measured quantities themselves
+are quantified directly in Figure 2 (s32_fig2_quantification.py).
 """
 from __future__ import annotations
 
@@ -60,19 +60,11 @@ def main() -> int:
     s["f2_per100"] = 100 * s.t9_mast / s.n_mast.replace(0, np.nan)
     s["prod_per1k"] = 1000 * s.t9_mast / s.n_cells
 
-    fig = plt.figure(figsize=(DOUBLE_COL, DOUBLE_COL * 0.62))
-    gs = fig.add_gridspec(2, 3, hspace=0.55, wspace=0.42)
-
-    # ---- §4 the two factors and their product ----------------------------
-    strip(fig.add_subplot(gs[0, 0]), s, "mast_pct_cells",
-          "mast cells (% of all cells)", "a   factor 1 · abundance")
-    strip(fig.add_subplot(gs[0, 1]), s, "f2_per100",
-          "TNFRSF9 per 100 mast cells", "b   factor 2 · per-cell expression")
-    strip(fig.add_subplot(gs[0, 2]), s, "prod_per1k",
-          "mast TNFRSF9 per 1,000 skin cells", "c   product · a × b")
+    fig = plt.figure(figsize=(DOUBLE_COL, DOUBLE_COL * 0.34))
+    gs = fig.add_gridspec(1, 3, wspace=0.46)
 
     # ---- §6 control populations ------------------------------------------
-    ax = fig.add_subplot(gs[1, 0])
+    ax = fig.add_subplot(gs[0, 0])
     C = pd.read_csv(TAB / "sc_control_populations.csv")
     C = C[C.comparison == G.PRIMARY].set_index("population")
     pops = ["Mast (SUBJECT)", "Fibroblasts", "Keratinocytes", "T/NK", "Macrophages"]
@@ -87,10 +79,10 @@ def main() -> int:
                         "T/NK", "Macrophages"], fontsize=5.8)
     ax.invert_yaxis()
     ax.set_xlabel("log$_2$ FC per UMI (adjusted), Healthy vs AD", fontsize=6)
-    ax.set_title("d   §6 control populations", loc="left", fontweight="bold")
+    ax.set_title("a   §6 control populations", loc="left", fontweight="bold")
 
     # ---- calibration against abundance-matched genes ---------------------
-    ax = fig.add_subplot(gs[1, 1])
+    ax = fig.add_subplot(gs[0, 1])
     N = pd.read_csv(TAB / "sc_calibration_matched_genes.csv")
     ax.hist(N.log2FC.clip(-6, 6), bins=60, color="#D5D5D5", edgecolor="none")
     t9 = N.loc[N.gene == TARGET, "log2FC"].iat[0]
@@ -99,18 +91,18 @@ def main() -> int:
             color=MUTED["accent"], ha="left", va="top")
     ax.set_xlabel("log$_2$ FC (Healthy vs AD), mast cells", fontsize=6)
     ax.set_ylabel(f"abundance-matched genes (n={len(N)})", fontsize=5.8)
-    ax.set_title("e   TNFRSF9 vs the background shift", loc="left", fontweight="bold")
+    ax.set_title("b   TNFRSF9 vs the background shift", loc="left", fontweight="bold")
 
     # ---- §6 dissociation stress ------------------------------------------
-    ax = fig.add_subplot(gs[1, 2])
+    ax = fig.add_subplot(gs[0, 2])
     strip(ax, s, "stress_mast", "HSP+IEG per 10k mast UMI",
-          "f   §6 dissociation stress")
+          "c   §6 dissociation stress")
     ax.text(.02, .96, "healthy arm is the most stressed:\na stressed arm reads low",
             transform=ax.transAxes, fontsize=5.2, va="top", color="#5A5A5A")
 
-    fig.savefig(FIG / "fig2_decomposition.pdf")
-    fig.savefig(FIG / "fig2_decomposition.png")
-    print("wrote fig2_decomposition.pdf / .png")
+    fig.savefig(FIG / "figS1_controls.pdf")
+    fig.savefig(FIG / "figS1_controls.png")
+    print("wrote figS1_controls.pdf / .png")
     return 0
 
 

@@ -38,8 +38,15 @@ comparison is confounded, **say so and still report it first**, then explain the
 ## 4. ABUNDANCE AND EXPRESSION ARE ONE QUANTITY
 
 Mast-cell-derived TNFRSF9 = **abundance × per-cell expression**. Never present these as separate
-questions. Always report both factors and their product. In bulk data they are not separable at all;
+questions. Always report both factors. In bulk data they are not separable at all;
 in scRNA-seq the per-cell estimate is conditional on which mast cells survived dissociation.
+
+> **USER OVERRIDE (2026-08-15).** The *product* is no longer computed or plotted:
+> "Stop doing these ratios or product a x b calculations". Figures state the
+> measured quantities directly — mast-cell counts, mast cells as % of all cells,
+> TNFRSF9+ mast-cell counts, TNFRSF9+ as % of mast cells — each with statistics.
+> The requirement that abundance and expression be *read together, never as
+> separate questions*, still stands and is met in Section 2.1 of the report.
 
 ## 5. DATA SOURCES — DEDICATED AD RESEARCH FIRST
 
