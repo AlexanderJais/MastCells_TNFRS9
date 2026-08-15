@@ -79,7 +79,8 @@ def main() -> int:
                 color="#2B2B2B" if c != "Mast" else MUTED["mast"])
     ax.set_xlim(*np.percentile(d.umap1, [0.02, 99.98]))
     ax.set_ylim(*np.percentile(d.umap2, [0.02, 99.98]))
-    ax.set_title(f"a   {len(d):,} cells, 27 donors", loc="left", fontweight="bold")
+    ax.set_title(f"a   {len(d):,} cells · {d.donor.nunique()} donors · "
+                 f"{d.sample_label.nunique()} samples", loc="left", fontweight="bold")
     ax.set_xticks([]); ax.set_yticks([])
     ax.set_xlabel("UMAP 1"); ax.set_ylabel("UMAP 2")
     for s in ax.spines.values():

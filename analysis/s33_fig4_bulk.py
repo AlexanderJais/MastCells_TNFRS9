@@ -59,7 +59,7 @@ def main() -> int:
     R = pd.read_csv(TAB / "bulk_GSE121212_glm.csv")
 
     fig = plt.figure(figsize=(DOUBLE_COL, DOUBLE_COL * 0.42))
-    gs = fig.add_gridspec(1, 4, wspace=0.46)
+    gs = fig.add_gridspec(1, 4, wspace=0.62)
 
     strip(fig.add_subplot(gs[0, 0]), s, "TNFRSF9_cpm", "TNFRSF9 (CPM)",
           "a   whole-skin TNFRSF9")
@@ -81,13 +81,13 @@ def main() -> int:
 
     # ---- d. forest -------------------------------------------------------
     ax = fig.add_subplot(gs[0, 3])
-    comps = [(G.PRIMARY, TARGET, "TNFRSF9  H vs AD"),
-             ("Healthy_vs_AD_LS", TARGET, "TNFRSF9  H vs AD LS"),
-             ("Healthy_vs_PSO", TARGET, "TNFRSF9  H vs Pso"),
-             (G.PRIMARY, "TPSAB1", "TPSAB1  H vs AD"),
-             (G.PRIMARY, "TPSB2", "TPSB2  H vs AD"),
-             (G.PRIMARY, "COL1A1", "COL1A1  H vs AD"),
-             (G.PRIMARY, "KRT14", "KRT14  H vs AD")]
+    comps = [(G.PRIMARY, TARGET, "TNFRSF9 · AD"),
+             ("Healthy_vs_AD_LS", TARGET, "TNFRSF9 · AD LS"),
+             ("Healthy_vs_PSO", TARGET, "TNFRSF9 · psoriasis"),
+             (G.PRIMARY, "TPSAB1", "TPSAB1 · AD"),
+             (G.PRIMARY, "TPSB2", "TPSB2 · AD"),
+             (G.PRIMARY, "COL1A1", "COL1A1 · AD"),
+             (G.PRIMARY, "KRT14", "KRT14 · AD")]
     for i, (c, g, lab) in enumerate(comps):
         r = R[(R.comparison == c) & (R.gene == g)].iloc[0]
         col = MUTED["accent"] if g == TARGET else ("#7A5C7B" if g in ("TPSAB1", "TPSB2") else "#9A9A9A")
@@ -98,7 +98,7 @@ def main() -> int:
     ax.set_yticklabels([c[2] for c in comps], fontsize=5.2)
     ax.invert_yaxis()
     ax.set_xlabel("log$_2$ fold change", fontsize=6)
-    ax.set_title("d   depth-adjusted, patient-clustered", loc="left", fontweight="bold")
+    ax.set_title("d   vs healthy, depth-adjusted", loc="left", fontweight="bold")
 
     fig.savefig(FIG / "fig4_bulk.pdf")
     fig.savefig(FIG / "fig4_bulk.png")

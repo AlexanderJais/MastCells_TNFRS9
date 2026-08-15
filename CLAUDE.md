@@ -90,3 +90,42 @@ Every analysis script that makes a group comparison should import and use
 ---
 
 ## Current standing answers (update when evidence changes)
+
+*Last updated: 2026-08-15. Evidence: `results/REPORT.md`, tables in `results/tables/`.*
+
+**Q1 — Is TNFRSF9 expressed in cutaneous mast cells in AD?**
+**Yes, at low level.** 2.4–2.6% of AD mast cells carry a TNFRSF9 transcript
+(0.36–0.47 per 10k mast UMI) in the two cohorts with adequate mast-cell
+recovery. Reproducible. Mast cells nevertheless supply only 2.7–5.7% of the
+TNFRSF9 in the tissue.
+
+**Q2 — Does expression change between healthy and AD skin?**
+**Higher in AD in 3/3 single-cell cohorts, but the magnitude does not
+replicate.** Per-mast-cell log2FC +2.81 (discovery, exact permutation P=0.012),
++0.51 (REP1, uninformative), +0.68 (REP2, P=0.80). Pooled +1.44 (0.52–2.37)
+fixed effects, **+1.53 (−0.16–3.22) random effects, I²=58%**. Quote the
+random-effects estimate: a ~2.9-fold increase that does not reach conventional
+significance.
+
+**Decomposition (§4).** Abundance is unchanged (1.47% → 1.41% of cells,
+log2OR +0.66, P=0.37); the per-cell factor carries the whole effect; the product
+is directionally consistent but non-significant (log2FC +2.34, P=0.13).
+
+**Three things NOT established.**
+1. *De-novo induction.* Near-absence in healthy mast cells is a discovery-cohort
+   property (3 transcripts, 5/6 donors zero) and **did not replicate** — REP2
+   healthy mast cells are positive at 0.21 per 10k.
+2. *Specificity to TNFRSF9.* 289 of 3,454 abundance-matched genes shift more
+   (empirical P=0.084); the AD mast-cell transcriptome differs broadly.
+3. *Specificity to AD.* Whole-skin TNFRSF9 rises as much in psoriasis
+   (log2FC +2.20) as in AD (+2.48).
+
+**Artefacts excluded.** Depth (stratified rate ratio 9.6×, i.e. depth suppresses
+the effect); mast–T doublets (97/107 AD transcripts come from mast cells with no
+T-cell transcript, log2FC +2.73, P=0.022); dissociation stress (healthy arm is
+the *most* stressed, biasing against the finding); batch (fibroblasts and
+keratinocytes show no shift).
+
+**Binding limitation.** Mast-cell recovery ranges 0.11%–4.4% of cells across
+cohorts and one dedicated AD atlas (GSE147424) yielded none at all. Every
+number here is conditional on the dissociation protocol.
