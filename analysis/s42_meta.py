@@ -62,8 +62,15 @@ def main() -> int:
                          mast_a=r.mast_ad, c_h=r.t9_healthy, e_h=float(r.umi_healthy),
                          c_a=r.t9_ad, e_a=float(r.umi_ad)))
     M = pd.DataFrame(rows)
+    # Second exposure: mast CELLS rather than mast UMI. This is the unadjusted
+    # ("absolute") estimand — TNFRSF9 molecules captured per mast cell — and it
+    # is the conservative one wherever healthy mast cells are the deeper arm.
     M["rate_h"] = 1e4 * M.c_h / M.e_h
     M["rate_a"] = 1e4 * M.c_a / M.e_a
+    lrr_c, se_c = zip(*[log_rr(r.c_h, r.mast_h, r.c_a, r.mast_a) for r in M.itertuples()])
+    M["log2FC_perCELL"] = np.array(lrr_c) / np.log(2)
+    M["ci_lo_perCELL"] = (np.array(lrr_c) - 1.96 * np.array(se_c)) / np.log(2)
+    M["ci_hi_perCELL"] = (np.array(lrr_c) + 1.96 * np.array(se_c)) / np.log(2)
     lrr, se = zip(*[log_rr(r.c_h, r.e_h, r.c_a, r.e_a) for r in M.itertuples()])
     M["log2FC"] = np.array(lrr) / np.log(2)
     M["se_log2"] = np.array(se) / np.log(2)
@@ -105,6 +112,36 @@ def main() -> int:
                      "ci_lo": (re - 1.96 * re_se) / np.log(2),
                      "ci_hi": (re + 1.96 * re_se) / np.log(2)}
     M.to_csv(TAB / "meta_analysis.csv", index=False)
+
+    # ---- the same pooling on the unadjusted (per-cell) exposure ----------
+    yc, vc = np.array(lrr_c), np.array(se_c) ** 2
+    wc = 1 / vc
+    fec = float((wc * yc).sum() / wc.sum())
+    fec_se = float(np.sqrt(1 / wc.sum()))
+    Qc = float((wc * (yc - fec) ** 2).sum())
+    I2c = max(0.0, 100 * (Qc - df) / Qc) if Qc > 0 else 0.0
+    tau2c = max(0.0, (Qc - df) / (wc.sum() - (wc ** 2).sum() / wc.sum()))
+    wrc = 1 / (vc + tau2c)
+    rec = float((wrc * yc).sum() / wrc.sum())
+    rec_se = float(np.sqrt(1 / wrc.sum()))
+    print("\nPOOLED — UNADJUSTED ESTIMAND (TNFRSF9 per mast CELL)")
+    print(f"  per-cohort log2FC: " +
+          ", ".join(f"{c.split(' (')[0]} {v:+.2f}"
+                    for c, v in zip(M.cohort, M.log2FC_perCELL) if np.isfinite(v)))
+    print(f"  fixed effects  : log2FC {fec/np.log(2):+.2f} "
+          f"(95% CI {(fec-1.96*fec_se)/np.log(2):+.2f} to {(fec+1.96*fec_se)/np.log(2):+.2f}), "
+          f"P = {2*stats.norm.sf(abs(fec/fec_se)):.4f}")
+    print(f"  random effects : log2FC {rec/np.log(2):+.2f} "
+          f"(95% CI {(rec-1.96*rec_se)/np.log(2):+.2f} to {(rec+1.96*rec_se)/np.log(2):+.2f}), "
+          f"P = {2*stats.norm.sf(abs(rec/rec_se)):.4f}")
+    print(f"  heterogeneity  : I2 = {I2c:.0f}%, P_Q = {stats.chi2.sf(Qc, df):.3f}")
+
+    print("\nMAST-CELL DEPTH BY ARM (does the exposure choice matter per cohort?)")
+    print("  ratio = mean UMI per mast cell, AD / healthy; <1 means healthy is deeper")
+    for r in M.dropna(subset=["mast_h"]).itertuples():
+        ratio = (r.e_a / r.mast_a) / (r.e_h / r.mast_h)
+        print(f"  {r.cohort:36s} {ratio:.2f}  "
+              f"({'healthy deeper -> per-cell is conservative' if ratio < 1 else 'AD deeper -> per-cell is anticonservative'})")
 
     print("\nMAST-CELL RECOVERY, the limiting factor")
     for r in M.dropna(subset=["mast_h"]).itertuples():

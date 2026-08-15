@@ -20,11 +20,14 @@ statistics rather than fold-change estimation.
 
 **Mast-cell TNFRSF9 is higher in AD than in healthy skin in all three cohorts,
 but the effect size is not reproducible.** Direction was consistent 3/3
-(log₂FC +2.81, +0.51, +0.68; 12 healthy and 20 AD donors in total, 843 versus
-4,315 mast cells). Pooling on the log rate ratio gives **+1.44
-(95% CI +0.52 to +2.37, P = 0.0022) under fixed effects and +1.53 (95% CI −0.16
-to +3.22, P = 0.076) under random effects, with I² = 58%** (Fig. 5g). Given that
-heterogeneity, the random-effects estimate is the one to quote: **a ~2.9-fold
+(12 healthy and 20 AD donors in total, 843 versus 4,315 mast cells). The headline
+estimate is the **unadjusted** one — TNFRSF9 molecules per mast cell — because
+healthy mast cells are the *deeper* arm in this comparison, which makes the
+unadjusted number the conservative one (§2): pooled **log₂FC +1.24 (95% CI +0.32
+to +2.16, P = 0.0085) under fixed effects, +1.32 (95% CI −0.07 to +2.71,
+P = 0.063) under random effects, I² = 42%**. Normalising instead by mast-cell UMI
+gives a slightly larger effect (+1.44 fixed, +1.53 random, I² = 58%). Given the
+heterogeneity, the random-effects estimate is the one to quote: **a ~2.5-fold
 increase that does not reach conventional significance.**
 
 **The change is in per-cell expression, not in cell number.** Mast-cell
@@ -142,6 +145,73 @@ of 38 transcripts; also an outlier at 13.3% mast cells) and its healthy arm has
 just 2 donors, 5 of whose 6 transcripts come from one of them. The discovery
 cohort is similarly concentrated (MGH108: 55 of 107). No cohort examined here has
 the donor numbers this question needs.
+
+---
+
+## 2A. Does the depth adjustment create the result?
+
+A reasonable objection: the libraries were sequenced comparably, so adjusting for
+depth may be removing signal rather than confounding. Answered with data.
+
+**"Sequencing depth" is three quantities, and only one can bias this test.**
+
+| Quantity | Healthy | AD | Ratio AD/H |
+|---|---|---|---|
+| Mean UMI per cell, all cells | 2,976 | 4,233 | 1.42 |
+| Mean UMI per **fibroblast** | 1,937 | 4,279 | **2.21** |
+| Mean UMI per **keratinocyte** | 2,226 | 4,817 | **2.16** |
+| Mean UMI per **macrophage** | 1,823 | 3,729 | **2.05** |
+| Mean UMI per **T/NK cell** | 1,080 | 1,606 | 1.49 |
+| Mean UMI per **mast cell** | **934** | **693** | **0.74** |
+
+The arms are *not* depth-matched: AD cells are 1.5–2.2× deeper in every
+population — **except mast cells, where healthy is 1.35× deeper.** Mast cells are
+the exception, and that fact decides the argument in two opposite directions.
+
+**For the mast-cell result, the adjustment is not doing the work.** Because
+healthy is the deeper arm, the unadjusted comparison is the *conservative* one,
+and it still holds (discovery cohort, donor-level exact permutation):
+
+| Estimand | Healthy | AD | Fold | log₂FC | P |
+|---|---|---|---|---|---|
+| per mast UMI (adjusted, compositional) | 0.057 /10k | 0.469 /10k | 8.2× | +2.81 | 0.012 |
+| **per mast CELL (unadjusted, absolute)** | 0.56 /100 cells | 3.43 /100 cells | **6.1×** | **+2.40** | **0.030** |
+| **no normalisation at all** (TNFRSF9⁺ cells) | 3/538 | 91/3,123 | OR 5.35 | — | **5.3×10⁻⁴** |
+
+Pooled across all three cohorts the unadjusted estimand gives log₂FC **+1.24
+(95% CI +0.32 to +2.16, P = 0.0085)** fixed and **+1.32 (−0.07 to +2.71,
+P = 0.063)** random, with **lower** heterogeneity than the adjusted version
+(I² = 42% versus 58%). Healthy mast cells are the deeper arm in the discovery
+cohort (ratio 0.75) and in GSE153760 (0.93), and equal in REP1 (1.04), so the
+unadjusted estimand is conservative or neutral in every cohort. **It is therefore
+the number this report leads with.**
+
+**But you cannot drop the adjustment for the control populations.** Fibroblasts,
+keratinocytes and macrophages *are* 2× deeper in AD, so for them the unadjusted
+comparison genuinely is a depth comparison:
+
+| Population (6 healthy vs 11 AD donors) | log₂FC per UMI (adjusted) | log₂FC per cell (unadjusted) |
+|---|---|---|
+| **Mast (subject)** | +2.81 (P = 0.012) | +2.40 (P = 0.030) |
+| Fibroblasts | +0.91 (P = 0.23) | **+2.05 (P = 0.011)** |
+| Keratinocytes | +0.26 (P = 0.72) | +1.37 (P = 0.15) |
+| T/NK | +1.49 (P = 0.0001) | +2.06 (P = 0.0013) |
+| Macrophages | +2.06 (P = 0.024) | +3.09 (P = 0.013) |
+
+Unadjusted, TNFRSF9 appears to rise in *almost every cell type* — which is
+exactly the "shared shift means batch, not biology" pattern §6 exists to catch,
+and here it is an artefact of those populations being sequenced twice as deeply
+in AD. **So: the adjustment is unnecessary for the mast-cell effect and essential
+for the claim that the effect is specific.** Both statements are reported rather
+than choosing whichever is convenient.
+
+**One genuine cost of adjusting, in the objection's favour.** AD mast cells
+capture 24.7% fewer UMI per cell than healthy ones (693 versus 934) and detect
+fewer genes (399 versus 477). Dividing by a smaller denominator inflates a
+per-UMI fraction, which is precisely why the adjusted estimate (8.2×) exceeds the
+unadjusted one (6.1×). Normalising by total UMI measures TNFRSF9 as a *share of
+the mast-cell transcriptome*, not molecules per cell; where the transcriptome
+itself changes size, those are different questions and both are reported above.
 
 ---
 

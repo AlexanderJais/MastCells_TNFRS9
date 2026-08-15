@@ -101,11 +101,20 @@ TNFRSF9 in the tissue.
 
 **Q2 — Does expression change between healthy and AD skin?**
 **Higher in AD in 3/3 single-cell cohorts, but the magnitude does not
-replicate.** Per-mast-cell log2FC +2.81 (discovery, exact permutation P=0.012),
-+0.51 (REP1, uninformative), +0.68 (REP2, P=0.80). Pooled +1.44 (0.52–2.37)
-fixed effects, **+1.53 (−0.16–3.22) random effects, I²=58%**. Quote the
-random-effects estimate: a ~2.9-fold increase that does not reach conventional
-significance.
+replicate.** Lead with the UNADJUSTED estimand (TNFRSF9 per mast cell): healthy
+mast cells are the deeper arm (AD/H UMI ratio 0.74–1.04 across cohorts), so
+unadjusted is the conservative choice and it also has lower heterogeneity.
+Pooled **+1.24 (0.32–2.16) fixed, +1.32 (−0.07–2.71) random, I²=42%**. Adjusting
+per mast UMI gives +1.44 / +1.53, I²=58%. Quote the random-effects estimate: a
+~2.5-fold increase that does not reach conventional significance.
+
+**On depth adjustment.** The arms are NOT depth-matched: AD cells are 1.5–2.2x
+deeper in fibroblasts, keratinocytes, macrophages and T/NK — but 0.74x in mast
+cells. Consequences, both reported: (a) the mast result does not need the
+adjustment (unadjusted 6.1x, P=0.030; raw TNFRSF9+ cell counts OR 5.35,
+P=5.3e-4); (b) the §6 control populations DO need it — unadjusted, fibroblasts
+(+2.05, P=0.011) and macrophages (+3.09, P=0.013) also "rise", which is the
+shared-shift artefact §6 exists to catch.
 
 **Decomposition (§4).** Abundance is unchanged (1.47% → 1.41% of cells,
 log2OR +0.66, P=0.37); the per-cell factor carries the whole effect; the product
