@@ -103,3 +103,16 @@ def set_style() -> None:
 MM = 1 / 25.4  # millimetres -> inches, for manuscript-width figures
 SINGLE_COL = 89 * MM
 DOUBLE_COL = 183 * MM
+
+
+def panel_label(ax, letter: str, text: str = "", pad: float = 4,
+                fontsize: float = 6.6) -> None:
+    """Panel title: BOLD letter, PLAIN description — the single definition.
+
+    Every figure in this project must call this rather than passing
+    ``fontweight="bold"`` to ``set_title``, which bolds the description as well
+    and produces the inconsistent labelling this helper exists to prevent.
+    ``analysis/guardrails.py`` enforces it.
+    """
+    ax.set_title(rf"$\bf{{{letter}}}$   {text}" if text else rf"$\bf{{{letter}}}$",
+                 loc="left", fontsize=fontsize, fontweight="normal", pad=pad)

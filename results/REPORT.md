@@ -263,7 +263,9 @@ UMI), so every section in Fig. 3 is annotated with its own median depth.
 (+0.02, 95% CI −0.32 to 0.37, P = 0.90) or healthy skin (−0.03, P = 0.96). The
 mandated control contents behaved as controls should in the same spots
 (fibroblast +0.34, 95% CI −0.10 to 0.78, P = 0.13; keratinocyte −0.08,
-P = 0.50). In lesional skin, where whole-tissue TNFRSF9 is highest, the signal is
+P = 0.50) — reported here and in `results/tables/spatial_colocalisation.csv`
+rather than drawn in Fig. 3h, where the subject is mast cells (CLAUDE.md §2).
+In lesional skin, where whole-tissue TNFRSF9 is highest, the signal is
 not spatially organised around mast cells — consistent with Section 6.
 
 ---

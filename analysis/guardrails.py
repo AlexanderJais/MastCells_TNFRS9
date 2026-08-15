@@ -175,6 +175,32 @@ def _audit_scripts(problems: list[str]) -> None:
                 problems.append(f"{path.name}: does not call {fn}() (§9)")
 
 
+def _audit_figures(problems: list[str]) -> None:
+    """Figure conventions that have regressed repeatedly.
+
+    1. Panel titles must come from palette.panel_label() — bold letter, plain
+       description. Passing fontweight="bold" to set_title bolds the description
+       too and produces inconsistent labelling across panels.
+    2. §2 — control populations must not be drawn as co-equal series in a MAIN
+       figure. They belong in the supplementary controls figure, the tables and
+       the report text. The subject of every main panel is mast cells.
+    """
+    CONTROL_NAMES = ("Fibroblast", "Keratinocyte", "T/NK", "Macrophage")
+    for path in sorted(ANALYSIS.glob("s3*.py")):
+        text = path.read_text(encoding="utf-8", errors="replace")
+        if re.search(r'set_title\([^)]*fontweight\s*=\s*["\']bold', text):
+            problems.append(
+                f"{path.name}: set_title(..., fontweight='bold') — use "
+                f"palette.panel_label() so only the panel letter is bold")
+        if "figS" in path.name:      # the controls figure may plot controls
+            continue
+        for name in CONTROL_NAMES:
+            if re.search(rf'label\s*=\s*["\'][^"\']*{re.escape(name)}', text):
+                problems.append(
+                    f"{path.name}: plots {name!r} as a labelled series in a main "
+                    f"figure (§2: control populations are not co-equal findings)")
+
+
 def _audit_prose(problems: list[str]) -> None:
     """§2 and §8 checks over written output."""
     targets = list((ROOT / "results").rglob("*.md")) + list((ROOT / "docs").rglob("*.md"))
@@ -226,6 +252,7 @@ def main() -> int:
     problems: list[str] = []
     _audit_selfconsistency(problems)
     _audit_scripts(problems)
+    _audit_figures(problems)
     _audit_prose(problems)
     _audit_ordering(problems)
 

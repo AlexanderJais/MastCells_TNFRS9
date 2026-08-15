@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 import guardrails as G  # noqa: E402
 from genes import TARGET, TARGET_LIGAND  # noqa: E402
-from palette import DOUBLE_COL, MUTED, set_style  # noqa: E402
+from palette import DOUBLE_COL, MUTED, panel_label, set_style  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 TAB = ROOT / "results" / "tables"
@@ -79,7 +79,7 @@ def main() -> int:
     cb = fig.colorbar(im, ax=ax, fraction=.035, pad=.02)
     cb.set_label("log$_2$ FC vs resting", fontsize=5.0, labelpad=1)
     cb.ax.tick_params(labelsize=4.6)
-    ax.set_title("b   specific, not global", loc="left", fontweight="bold", fontsize=6.6)
+    panel_label(ax, "b", "specificity")
 
     # ---- c. paired donors, second cohort --------------------------------
     ax = fig.add_subplot(gs[0, 2])

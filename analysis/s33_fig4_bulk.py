@@ -37,7 +37,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 import guardrails as G  # noqa: E402
 from genes import TARGET  # noqa: E402
-from palette import DOUBLE_COL, MUTED, set_style  # noqa: E402
+from palette import DOUBLE_COL, MUTED, panel_label, set_style  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 TAB = ROOT / "results" / "tables"

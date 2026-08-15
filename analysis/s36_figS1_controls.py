@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 import guardrails as G  # noqa: E402
 from genes import TARGET  # noqa: E402
-from palette import DOUBLE_COL, MUTED, set_style  # noqa: E402
+from palette import DOUBLE_COL, MUTED, panel_label, set_style  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 TAB = ROOT / "results" / "tables"
@@ -47,7 +47,7 @@ def strip(ax, s: pd.DataFrame, col: str, ylab: str, title: str, logy=False):
     ax.set_xticks(range(len(ORDER)))
     ax.set_xticklabels([ARM_LAB[a] for a in ORDER], fontsize=6)
     ax.set_ylabel(ylab, fontsize=6)
-    ax.set_title(title, loc="left", fontweight="bold")
+    panel_label(ax, title.split()[0], " ".join(title.split()[1:]))
     if logy:
         ax.set_yscale("symlog", linthresh=1e-2)
 
@@ -80,7 +80,7 @@ def main() -> int:
                         "T/NK", "Macrophages"], fontsize=5.8)
     ax.invert_yaxis()
     ax.set_xlabel("log$_2$ FC per UMI (adjusted), Healthy vs AD  (± SEM)", fontsize=6)
-    ax.set_title("a   §6 control populations", loc="left", fontweight="bold")
+    panel_label(ax, "a", "§6 control populations")
 
     # ---- calibration against abundance-matched genes ---------------------
     ax = fig.add_subplot(gs[0, 1])
@@ -92,7 +92,7 @@ def main() -> int:
             color=MUTED["accent"], ha="left", va="top")
     ax.set_xlabel("log$_2$ FC (Healthy vs AD), mast cells", fontsize=6)
     ax.set_ylabel(f"abundance-matched genes (n={len(N)})", fontsize=5.8)
-    ax.set_title("b   TNFRSF9 vs the background shift", loc="left", fontweight="bold")
+    panel_label(ax, "b", "TNFRSF9 vs the background shift")
 
     # ---- §6 dissociation stress ------------------------------------------
     ax = fig.add_subplot(gs[0, 2])

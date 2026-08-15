@@ -26,7 +26,7 @@ import matplotlib.image as mpimg  # noqa: E402
 
 import guardrails as G  # noqa: E402
 from genes import MAST_QC, TARGET  # noqa: E402
-from palette import DOUBLE_COL, MUTED, set_style  # noqa: E402
+from palette import DOUBLE_COL, MUTED, panel_label, set_style  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 RAW = ROOT / "data" / "raw" / "GSE197023"
@@ -123,7 +123,7 @@ def main() -> int:
         for sp in ax.spines.values():
             sp.set_visible(False)
         ax.set_title(f"{ARM_LAB[arm]}\n{name}", fontsize=5.6, pad=2,
-                     color=ARM_COL[arm], fontweight="bold")
+                     color=ARM_COL[arm])
         if j == 0:
             ax.set_ylabel("tryptase/CPA3", fontsize=6)
 
@@ -167,27 +167,26 @@ def main() -> int:
     ax.set_yticks(y); ax.set_yticklabels(labs, fontsize=5.6)
     ax.invert_yaxis()
     ax.set_xlabel("log$_2$ fold change", fontsize=6)
-    ax.set_title("g   TNFRSF9 per spot  (± SEM)", loc="left", fontweight="bold")
+    panel_label(ax, "g", "TNFRSF9 per spot  (± SEM)")
 
-    # ---- row 3b: in-situ co-localisation ---------------------------------
+    # ---- row 3b: in-situ co-localisation, MAST CELLS ONLY ----------------
+    # CLAUDE.md §2: the subject is mast cells. The fibroblast and keratinocyte
+    # control regressions are mandated by §6 and are reported in
+    # results/tables/spatial_colocalisation.csv and Section 5 of the report --
+    # they are not drawn here, where they would read as co-equal findings.
     ax = fig.add_subplot(gsb[0, 1])
     B = pd.read_csv(TAB / "spatial_colocalisation.csv")
-    order = ["Healthy", "AD_NL", "AD_LS"]
-    w = .26
-    for k, content in enumerate(["Mast", "Fibroblasts", "Keratinocytes"]):
-        sub = B[B.content == content].set_index("arm").loc[order]
-        xs = np.arange(len(order)) + (k - 1) * w
-        col = MUTED["mast"] if content == "Mast" else ("#C4C4C4" if content == "Fibroblasts" else "#E0E0E0")
-        ax.bar(xs, sub.log2FC, w, color=col, edgecolor="none",
-               label=content + (" (subject)" if content == "Mast" else " (control)"))
-        ax.errorbar(xs, sub.log2FC, yerr=sub.se_log2, fmt="none",
-                    ecolor="#6B6B6B", elinewidth=.7, capsize=1.4)   # +/- 1 SEM
+    B = B[B.content == "Mast"].set_index("arm").loc[["Healthy", "AD_NL", "AD_LS"]]
+    xs = np.arange(len(B))
+    ax.bar(xs, B.log2FC, .58, color=[ARM_COL[a] for a in B.index], edgecolor="none")
+    ax.errorbar(xs, B.log2FC, yerr=B.se_log2, fmt="none", ecolor="#4A4A4A",
+                elinewidth=.8, capsize=1.8)
     ax.axhline(0, color="#B0B0B0", lw=.6)
-    ax.set_xticks(np.arange(len(order)))
+    ax.set_xticks(xs)
     ax.set_xticklabels(["Healthy", "AD NL", "AD LS"], fontsize=6)
-    ax.set_ylabel("log$_2$ TNFRSF9 per doubling\nof content  (± SEM)", fontsize=5.8, labelpad=1)
-    ax.legend(fontsize=5, loc="upper left")
-    ax.set_title("h   in-situ co-localisation", loc="left", fontweight="bold")
+    ax.set_ylabel("log$_2$ TNFRSF9 per doubling\nof mast-cell content  (± SEM)",
+                  fontsize=5.8, labelpad=1)
+    panel_label(ax, "h", "TNFRSF9 vs mast-cell content")
 
     # ---- row 3c: per-section rate ----------------------------------------
     ax = fig.add_subplot(gsb[0, 2])
@@ -201,7 +200,7 @@ def main() -> int:
     ax.set_xticks(np.arange(len(per)))
     ax.set_xticklabels(per.index, rotation=90, fontsize=4.6)
     ax.set_ylabel("TNFRSF9 per 10k spot UMI", fontsize=6, labelpad=1)
-    ax.set_title("i   per section", loc="left", fontweight="bold")
+    panel_label(ax, "i", "per section")
 
     fig.savefig(FIG / "fig3_spatial.pdf")
     fig.savefig(FIG / "fig3_spatial.png")
