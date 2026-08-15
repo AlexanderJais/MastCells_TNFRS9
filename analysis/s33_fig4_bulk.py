@@ -98,7 +98,7 @@ def main() -> int:
     ax.set_yticklabels([c[2] for c in comps], fontsize=5.2)
     ax.invert_yaxis()
     ax.set_xlabel("log$_2$ fold change", fontsize=6)
-    ax.set_title("d   vs healthy, depth-adjusted", loc="left", fontweight="bold")
+    ax.set_title("d   vs healthy, library-size-adjusted", loc="left", fontweight="bold")
 
     fig.savefig(FIG / "fig4_bulk.pdf")
     fig.savefig(FIG / "fig4_bulk.png")

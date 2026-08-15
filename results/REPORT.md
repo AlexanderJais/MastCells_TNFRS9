@@ -53,8 +53,9 @@ but it is a low-expression gene, and every analysis below is governed by countin
 statistics rather than fold-change estimation (Fig. 1).
 
 Mast cells are also the shallowest-sampled population in the atlas: a median of
-546–622 UMI per cell against 3,157–4,061 for fibroblasts and keratinocytes
-(Fig. 1e). Section 7.1 sets out what follows from that.
+546–622 UMI per cell against 3,157–4,061 for fibroblasts and keratinocytes.
+Section 7.1 sets out what follows from that, and why per-cell UMI is *not*
+"sequencing depth".
 
 ---
 
@@ -336,10 +337,10 @@ claim that the effect is specific. Both are reported.
 | Marker QC | 3,661 of 4,313 deposited "Mast" labels passed (84.9%); 433 QC-positive cells carried non-mast labels and were excluded | Deposited labels imperfect, as anticipated |
 | Dissociation stress | HSP+IEG 986 per 10k mast UMI healthy versus 416 AD | **Healthy is the most stressed arm — biases against the finding**; Spearman(stress, rate) = −0.15, P = 0.57 |
 
-**Depth-matched detection.** Healthy mast cells contributed zero TNFRSF9
-transcripts in every depth stratum below 800 UMI, where AD mast cells contributed
-35. The depth-stratified common rate ratio is **9.6×**, larger than the crude
-estimate (Fig. 1f).
+**Sampling-matched detection.** Stratifying mast cells by UMI per cell, healthy
+mast cells contributed zero TNFRSF9 transcripts in every stratum below 800 UMI,
+where AD mast cells contributed 35. The stratified common rate ratio is **9.6×**,
+larger than the crude estimate (`results/tables/sc_depth_matched.csv`).
 
 **Leave-one-donor-out.** Dropping any one of the 17 discovery donors (6 healthy,
 11 AD) leaves log₂FC between +2.15 and +4.72, permutation P ≤ 0.043 throughout.

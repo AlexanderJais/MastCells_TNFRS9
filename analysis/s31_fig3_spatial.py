@@ -3,7 +3,7 @@
 Subject: MAST CELLS (CLAUDE.md §2). Visium never dissociates the tissue, so this
 arm tests whether the single-cell picture survives without enzymatic digestion.
 
-Honesty note carried onto the figure itself: median spot depth differs ~4x
+Honesty note carried onto the figure itself: median UMI per spot differs ~4x
 between arms (AD lesional 4,005 vs healthy 1,157 UMI), so every section is
 annotated with its own median depth and all statistics carry a log-depth offset
 (§6). A raw side-by-side image comparison would be a depth comparison.
@@ -125,7 +125,7 @@ def main() -> int:
     ax.axvline(0, color="#B0B0B0", lw=.6, ls="--")
     ax.set_yticks(y); ax.set_yticklabels(labs, fontsize=5.6)
     ax.invert_yaxis()
-    ax.set_xlabel("log$_2$ fold change (depth-adjusted)", fontsize=6)
+    ax.set_xlabel("log$_2$ fold change (offset: log UMI per spot)", fontsize=6)
     ax.set_title("g   TNFRSF9 per spot", loc="left", fontweight="bold")
 
     # ---- row 3b: in-situ co-localisation ---------------------------------

@@ -55,8 +55,10 @@ def strip(ax, s: pd.DataFrame, col: str, ylab: str, title: str, logy=False):
 def main() -> int:
     set_style()
     s = pd.read_csv(TAB / "sc_sample_level.csv")
-    s["f2_cp10k"] = 1e4 * s.f2_t9_rate_in_mast
-    s["prod_cp10k"] = 1e4 * s.product_mast_t9_share
+    # §4 decomposition in per-CELL units: the identity F1 x F2 = product holds
+    # exactly, and per-cell is the report's primary estimand (Section 7.1).
+    s["f2_per100"] = 100 * s.t9_mast / s.n_mast.replace(0, np.nan)
+    s["prod_per1k"] = 1000 * s.t9_mast / s.n_cells
 
     fig = plt.figure(figsize=(DOUBLE_COL, DOUBLE_COL * 0.62))
     gs = fig.add_gridspec(2, 3, hspace=0.55, wspace=0.42)
@@ -64,10 +66,10 @@ def main() -> int:
     # ---- §4 the two factors and their product ----------------------------
     strip(fig.add_subplot(gs[0, 0]), s, "mast_pct_cells",
           "mast cells (% of all cells)", "a   factor 1 · abundance")
-    strip(fig.add_subplot(gs[0, 1]), s, "f2_cp10k",
-          "TNFRSF9 per 10k mast UMI", "b   factor 2 · per-cell expression")
-    strip(fig.add_subplot(gs[0, 2]), s, "prod_cp10k",
-          "mast TNFRSF9 per 10k tissue UMI", "c   product · a × b")
+    strip(fig.add_subplot(gs[0, 1]), s, "f2_per100",
+          "TNFRSF9 per 100 mast cells", "b   factor 2 · per-cell expression")
+    strip(fig.add_subplot(gs[0, 2]), s, "prod_per1k",
+          "mast TNFRSF9 per 1,000 skin cells", "c   product · a × b")
 
     # ---- §6 control populations ------------------------------------------
     ax = fig.add_subplot(gs[1, 0])
@@ -84,7 +86,7 @@ def main() -> int:
     ax.set_yticklabels(["Mast (subject)", "Fibroblasts", "Keratinocytes",
                         "T/NK", "Macrophages"], fontsize=5.8)
     ax.invert_yaxis()
-    ax.set_xlabel("log$_2$ FC, Healthy vs AD", fontsize=6)
+    ax.set_xlabel("log$_2$ FC per UMI (adjusted), Healthy vs AD", fontsize=6)
     ax.set_title("d   §6 control populations", loc="left", fontweight="bold")
 
     # ---- calibration against abundance-matched genes ---------------------
