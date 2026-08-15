@@ -98,8 +98,6 @@ def main() -> int:
     ax = fig.add_subplot(gs[0, 2])
     strip(ax, s, "stress_mast", "HSP+IEG per 10k mast UMI",
           "c   §6 dissociation stress")
-    ax.text(.02, .96, "healthy arm is the most stressed:\na stressed arm reads low",
-            transform=ax.transAxes, fontsize=5.2, va="top", color="#5A5A5A")
 
     fig.savefig(FIG / "figS1_controls.pdf")
     fig.savefig(FIG / "figS1_controls.png")

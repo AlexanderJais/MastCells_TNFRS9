@@ -83,8 +83,7 @@ def main() -> int:
 
     # ---- a. the dose-response, and psoriasis alongside it -----------------
     strip(fig.add_subplot(gs[0, 0]), s, "TNFRSF9_cpm", "TNFRSF9 (CPM)",
-          "a", "whole-skin TNFRSF9",
-          note="AD and psoriasis\nrise alike")
+          "a", "whole-skin TNFRSF9")
 
     # ---- b. mast content over the same samples ----------------------------
     rho_txt = []
@@ -94,8 +93,7 @@ def main() -> int:
         rho_txt.append(f"{LAB[a]} ρ={r:+.2f}")
     strip(fig.add_subplot(gs[0, 1]), s, "mast_content_cpm",
           "TPSAB1+TPSB2+CPA3 (CPM)", "b", "mast-cell content",
-          note="flat while TNFRSF9 rises 4×\nTNFRSF9 vs mast content:\n"
-               + ", ".join(rho_txt) + " (n.s.)")
+          note="TNFRSF9 vs mast content:\n" + ", ".join(rho_txt))
 
     # ---- c. the two diseases side by side, target vs mast content ---------
     ax = fig.add_subplot(gs[0, 2])

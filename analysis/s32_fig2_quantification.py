@@ -115,7 +115,7 @@ def main() -> int:
     strip_panel(fig.add_subplot(gs[0, 1]), s, "pct_mast",
                 "mast cells (% of all cells)", "b", "mast-cell abundance",
                 tests={"AD_NL": mwu("pct_mast", "AD_NL"), "AD_LS": mwu("pct_mast", "AD_LS")},
-                pooled="abundance is unchanged")
+                pooled=None)
 
     # ---- c. absolute TNFRSF9+ mast cells ---------------------------------
     strip_panel(fig.add_subplot(gs[0, 2]), s, "n_mast_t9pos",

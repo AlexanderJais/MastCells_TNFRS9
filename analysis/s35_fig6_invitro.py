@@ -32,11 +32,11 @@ SUBJECT = G.require_mast_subject("Mast")
 ORDER = ["UN", "TSLP", "IL25", "IgE", "IL33", "IL33IL25TSLP",
          "IgETSLP", "IgEIL25", "IgEIL33", "IgEIL33IL25TSLP"]
 NICE = {"UN": "resting", "TSLP": "TSLP", "IL25": "IL-25", "IgE": "IgE/Ag",
-        "IL33": "IL-33", "IL33IL25TSLP": "IL-33+IL-25\n+TSLP",
+        "IL33": "IL-33", "IL33IL25TSLP": "IL-33+IL-25+TSLP",
         "IgETSLP": "IgE+TSLP", "IgEIL25": "IgE+IL-25", "IgEIL33": "IgE+IL-33",
         "IgEIL33IL25TSLP": "IgE+all three"}
 TEFF = ["Ctl", "LT", "LT_B", "IgE", "IL33"]
-TEFF_NICE = {"Ctl": "resting", "LT": "resting\nT cells", "LT_B": "activated\nT cells",
+TEFF_NICE = {"Ctl": "resting", "LT": "T cells", "LT_B": "T cells, activated",
              "IgE": "IgE/Ag", "IL33": "IL-33"}
 
 
@@ -59,9 +59,7 @@ def main() -> int:
     ax.set_xticks(np.arange(len(order)))
     ax.set_xticklabels([NICE[o] for o in order], rotation=45, ha="right", fontsize=5.2)
     ax.set_ylabel(f"{TARGET} (FPKM)", fontsize=6.2)
-    panel_label(ax, "a", "primary human skin mast cells")
-    ax.text(.02, .95, "resting FPKM 0.14\nIgE+IL-33 → 8.7  (59×)", transform=ax.transAxes,
-            fontsize=5.4, va="top", color="#4A4A4A")
+    panel_label(ax, "a", "primary skin mast cells (GSE196862)")
 
     # ---- b. specificity: log2FC heat ------------------------------------
     ax = fig.add_subplot(gs[0, 1])
@@ -89,10 +87,11 @@ def main() -> int:
                   ("#C7C7C7" if c == "LT" else MUTED["ad_ls"]) for c in conds],
            edgecolor="none", width=.7)
     ax.set_yscale("log")
+    ax.set_ylim(top=max(y) * 3.2)
     ax.set_xticks(np.arange(len(conds)))
-    ax.set_xticklabels([TEFF_NICE[c] for c in conds], rotation=45, ha="right", fontsize=5.2)
+    ax.set_xticklabels([TEFF_NICE[c] for c in conds], rotation=45, ha="right", fontsize=5.4)
     ax.set_ylabel(f"{TARGET} (normalised counts)", fontsize=6.0, labelpad=1)
-    panel_label(ax, "c", "4 donors, paired")
+    panel_label(ax, "c", "primary mast cells (GSE235240)")
     for i, c in enumerate(conds):
         p = T.get(f"p_{c}")
         if p is not None and np.isfinite(T.loc[TARGET, f"p_{c}"]):
