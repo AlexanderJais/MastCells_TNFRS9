@@ -57,15 +57,24 @@ def log_rr(c_h, e_h, c_a, e_a, corr=0.5):
 
 def main() -> int:
     disc = pd.read_csv(TAB / "sc_denovo_test.csv").set_index("arm")
+    disc_s = pd.read_csv(TAB / "sc_sample_level.csv")
     rep = pd.read_csv(TAB / "replication_summary.csv")
+    rep_d = pd.read_csv(TAB / "replication_donor_level.csv")
+    rep_cells = rep_d.groupby("cohort").n_cells.sum()
 
+    # Both halves of the qualification criterion are applied in code, not only
+    # stated in prose: a cohort must clear an absolute count in each arm AND a
+    # recovery fraction over the whole cohort. Both are judged on tryptase/CPA3
+    # marker data alone, before any TNFRSF9 number is looked at.
     MIN_MAST_PER_ARM = 100
+    MIN_MAST_RECOVERY_PCT = 0.5
 
     rows = [dict(cohort="Discovery (GSE204762, 3')",
                  donors_h=int(disc.loc["Healthy", "donors"]),
                  donors_a=int(disc.loc["AD", "donors"]),
                  mast_h=int(disc.loc["Healthy", "n_mast"]),
                  mast_a=int(disc.loc["AD", "n_mast"]),
+                 cells_total=int(disc_s.n_cells.sum()),
                  c_h=int(disc.loc["Healthy", "counts"]),
                  e_h=float(disc.loc["Healthy", "mast_umi"]),
                  c_a=int(disc.loc["AD", "counts"]),
@@ -73,15 +82,19 @@ def main() -> int:
     for r in rep.itertuples():
         rows.append(dict(cohort=r.cohort, donors_h=r.donors_healthy,
                          donors_a=r.donors_ad, mast_h=r.mast_healthy,
-                         mast_a=r.mast_ad, c_h=r.t9_healthy, e_h=float(r.umi_healthy),
+                         mast_a=r.mast_ad, cells_total=int(rep_cells[r.cohort]),
+                         c_h=r.t9_healthy, e_h=float(r.umi_healthy),
                          c_a=r.t9_ad, e_a=float(r.umi_ad)))
     M = pd.DataFrame(rows)
-    M["qualifies"] = (M.mast_h >= MIN_MAST_PER_ARM) & (M.mast_a >= MIN_MAST_PER_ARM)
+    M["recovery_pct"] = 100 * (M.mast_h + M.mast_a) / M.cells_total
+    M["qualifies"] = ((M.mast_h >= MIN_MAST_PER_ARM) & (M.mast_a >= MIN_MAST_PER_ARM)
+                      & (M.recovery_pct >= MIN_MAST_RECOVERY_PCT))
     excluded = M[~M.qualifies].copy()
     M = M[M.qualifies].reset_index(drop=True)
     for r in excluded.itertuples():
-        print(f"EXCLUDED before analysis: {r.cohort} — only {int(r.mast_h)}/{int(r.mast_a)} "
-              f"mast cells recovered (threshold {MIN_MAST_PER_ARM} per arm)")
+        print(f"EXCLUDED before analysis: {r.cohort} — {int(r.mast_h)}/{int(r.mast_a)} "
+              f"mast cells recovered (threshold {MIN_MAST_PER_ARM} per arm) at "
+              f"{r.recovery_pct:.3f}% recovery (threshold {MIN_MAST_RECOVERY_PCT}%)")
     # Second exposure: mast CELLS rather than mast UMI. This is the unadjusted
     # ("absolute") estimand — TNFRSF9 molecules captured per mast cell — and it
     # is the conservative one wherever healthy mast cells are the deeper arm.
@@ -123,17 +136,9 @@ def main() -> int:
     print(f"  heterogeneity  : Q = {Q:.2f} (df {df}), I2 = {I2:.0f}%, "
           f"P_Q = {stats.chi2.sf(Q, df):.3f}")
 
-    M.loc[len(M)] = {**{c: np.nan for c in M.columns}, "cohort": "POOLED (fixed)",
-                     "log2FC": fe / np.log(2), "se_log2": fe_se / np.log(2),
-                     "ci_lo": (fe - 1.96 * fe_se) / np.log(2),
-                     "ci_hi": (fe + 1.96 * fe_se) / np.log(2)}
-    M.loc[len(M)] = {**{c: np.nan for c in M.columns}, "cohort": "POOLED (random)",
-                     "log2FC": re / np.log(2), "se_log2": re_se / np.log(2),
-                     "ci_lo": (re - 1.96 * re_se) / np.log(2),
-                     "ci_hi": (re + 1.96 * re_se) / np.log(2)}
-    M.to_csv(TAB / "meta_analysis.csv", index=False)
-
     # ---- the same pooling on the unadjusted (per-cell) exposure ----------
+    # This is the PRIMARY estimand (§7.1 of the report), so it is written into
+    # the table alongside the per-UMI pool rather than left in stdout.
     yc, vc = np.array(lrr_c), np.array(se_c) ** 2
     wc = 1 / vc
     fec = float((wc * yc).sum() / wc.sum())
@@ -144,10 +149,31 @@ def main() -> int:
     wrc = 1 / (vc + tau2c)
     rec = float((wrc * yc).sum() / wrc.sum())
     rec_se = float(np.sqrt(1 / wrc.sum()))
+
+    def pooled_row(label, b, b_se, bc, bc_se, i2, i2c):
+        return {**{c: np.nan for c in M.columns}, "cohort": label,
+                "log2FC": b / np.log(2), "se_log2": b_se / np.log(2),
+                "ci_lo": (b - 1.96 * b_se) / np.log(2),
+                "ci_hi": (b + 1.96 * b_se) / np.log(2),
+                "p": float(2 * stats.norm.sf(abs(b / b_se))),
+                "log2FC_perCELL": bc / np.log(2),
+                "ci_lo_perCELL": (bc - 1.96 * bc_se) / np.log(2),
+                "ci_hi_perCELL": (bc + 1.96 * bc_se) / np.log(2),
+                "p_perCELL": float(2 * stats.norm.sf(abs(bc / bc_se))),
+                "I2_pct": i2, "I2_pct_perCELL": i2c}
+
+    M["p"] = np.nan
+    M["p_perCELL"] = np.nan
+    M["I2_pct"] = np.nan
+    M["I2_pct_perCELL"] = np.nan
+    M.loc[len(M)] = pooled_row("POOLED (fixed)", fe, fe_se, fec, fec_se, I2, I2c)
+    M.loc[len(M)] = pooled_row("POOLED (random)", re, re_se, rec, rec_se, I2, I2c)
+    M.to_csv(TAB / "meta_analysis.csv", index=False)
+
     print("\nPOOLED — UNADJUSTED ESTIMAND (TNFRSF9 per mast CELL)")
     print(f"  per-cohort log2FC: " +
-          ", ".join(f"{c.split(' (')[0]} {v:+.2f}"
-                    for c, v in zip(M.cohort, M.log2FC_perCELL) if np.isfinite(v)))
+          ", ".join(f"{r.cohort.split(' (')[0]} {r.log2FC_perCELL:+.2f}"
+                    for r in M.itertuples() if not r.cohort.startswith("POOLED")))
     print(f"  fixed effects  : log2FC {fec/np.log(2):+.2f} "
           f"(95% CI {(fec-1.96*fec_se)/np.log(2):+.2f} to {(fec+1.96*fec_se)/np.log(2):+.2f}), "
           f"P = {2*stats.norm.sf(abs(fec/fec_se)):.4f}")

@@ -3,9 +3,10 @@
 Conventions used throughout. Error bars show the standard error of the mean.
 Intervals given in the report text are 95% confidence intervals and are labelled
 as such. Mast cells were identified by marker quality control, requiring at least
-two of TPSAB1, TPSB2 and CPA3 to be detected in a cell. All group comparisons
-were made at the level of donors or samples, never individual cells. Statistical
-tests are two-sided.
+two of TPSAB1, TPSB2 and CPA3 to be detected in a cell. In the discovery cohort,
+which carries author cell-type labels, the label was required as well; in the
+replication cohorts, which do not, a tryptase magnitude threshold calibrated on
+the discovery cohort was required instead. Statistical tests are two-sided.
 
 ---
 
@@ -21,8 +22,10 @@ dataset. Mast cells are shown in purple.
 granule genes TPSAB1, TPSB2 and CPA3. The mast-cell island is the only region of
 the atlas in which these transcripts are abundant.
 
-**c**, The 3,661 cells that passed mast-cell marker quality control, coloured by
-tissue group.
+**c**, The 3,661 cells carrying the Mast label that also passed marker quality
+control, coloured by tissue group. Marker quality control alone was met by 4,094
+cells; the 433 that met it without the Mast label were excluded as ambient
+tryptase or doublets.
 
 **d**, Mast cells from each tissue group, with TNFRSF9-positive cells shown as
 filled circles. Values beneath each panel give the number of TNFRSF9-positive

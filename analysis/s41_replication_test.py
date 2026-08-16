@@ -83,6 +83,42 @@ def exact_perm(counts, expo, alt):
     return S[i0] / np.log(2), float((np.abs(S) >= abs(S[i0]) - 1e-12).mean())
 
 
+def rule_sensitivity() -> pd.DataFrame:
+    """Does the discovery result depend on WHICH mast-cell rule is applied?
+
+    The discovery cohort carries author labels and uses `label AND >=2 markers`;
+    the replication cohorts have no labels and use `>=2 markers AND tryptase
+    magnitude`. A replication is only interpretable if the two arms of the
+    comparison are not selected by different rules, so the discovery cohort is
+    re-analysed here under the replication's rule.
+    """
+    o = pd.read_parquet(DISC / "obs_all.parquet")
+    o = o[o.arm.isin(["Healthy", "AD_NL", "AD_LS"])].copy()
+    o["armp"] = np.where(o.arm == "Healthy", "Healthy", "AD")
+    o["mast_cal"] = o.mast_qc_pass & (tryp_rate(o) >= TRYP_THRESHOLD)
+    rules = {
+        "discovery rule (label AND >=2 markers)": o.mast_strict.values.astype(bool),
+        "replication rule (>=2 markers AND tryptase)": o.mast_cal.values.astype(bool),
+        ">=2 markers only": o.mast_qc_pass.values.astype(bool),
+    }
+    from scipy import stats as sps
+    rows = []
+    for name, mask in rules.items():
+        m = o[mask]
+        rec = dict(rule=name)
+        for arm in ("Healthy", "AD"):
+            g = m[m.armp == arm]
+            rec[f"mast_{arm}"] = len(g)
+            rec[f"t9pos_{arm}"] = int((g[f"g_{TARGET}"] > 0).sum())
+            rec[f"pct_{arm}"] = 100 * (g[f"g_{TARGET}"] > 0).sum() / max(len(g), 1)
+        orr, p = sps.fisher_exact(
+            [[rec["t9pos_AD"], rec["mast_AD"] - rec["t9pos_AD"]],
+             [rec["t9pos_Healthy"], rec["mast_Healthy"] - rec["t9pos_Healthy"]]])
+        rec.update(odds_ratio=orr, p_fisher=p)
+        rows.append(rec)
+    return pd.DataFrame(rows)
+
+
 def run(obs: pd.DataFrame, cohort: str) -> tuple[pd.DataFrame, dict]:
     obs = obs.copy()
     obs["tryp_rate"] = tryp_rate(obs)
@@ -122,6 +158,14 @@ def main() -> int:
     print(cal.round(1).to_string(index=False))
     cal.to_csv(TAB / "replication_mast_rule_calibration.csv", index=False)
     print(f"\nusing threshold {TRYP_THRESHOLD:.0f} transcripts per 10k UMI\n")
+
+    print("SENSITIVITY — the discovery cohort under each mast-cell rule")
+    print("(the replication cannot be read as a failure to replicate if the two")
+    print(" cohorts select their mast cells by different rules)")
+    RS = rule_sensitivity()
+    RS.to_csv(TAB / "replication_rule_sensitivity.csv", index=False)
+    print(RS.round(3).to_string(index=False))
+    print()
 
     frames, summaries = [], []
     for tag, f in (("REP1 (GSE222840+GSE173205, 5')", "rep1_obs.parquet"),

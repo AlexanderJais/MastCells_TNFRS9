@@ -110,16 +110,50 @@ def main() -> int:
     print("  cell-intrinsic mRNA content, not sequencing.")
 
     # ---- 3. so is the AD deficit in mast UMI real, or library-level? -----
+    #
+    # Both rows must be computed with the SAME estimator, or the comparison is
+    # not a comparison. Two estimators are defensible and they are reported
+    # side by side, because they do not agree on the mast-cell row:
+    #
+    #   pooled     — mean over cells, so libraries contribute in proportion to
+    #                the cells they yielded
+    #   library    — median over libraries of each library's own mean, so every
+    #                library counts once (the §6 aggregation unit)
+    #
+    # The all-cell row is AD-deeper under both. The mast row is AD-shallower
+    # pooled and AD-deeper by library, because healthy mast cells are
+    # concentrated in a few deep libraries. The estimator-free evidence is the
+    # within-library ratio in section 2, which does not depend on this choice.
     print("\n" + "=" * 96)
     print("3. IS THE AD MAST-CELL UMI DEFICIT A LIBRARY EFFECT?")
-    lib = o.groupby(["sample_label", "armp"], observed=True).depth_retained.mean().reset_index()
-    print("  mean UMI per cell, ALL cells, by arm (library-level effort):")
-    print(lib.groupby("armp").depth_retained.agg(["count", "median"]).round(0).to_string())
-    print("  mean UMI per MAST cell, by arm:")
-    print(o[o.ct == "Mast"].groupby("armp").depth_retained.mean().round(0).to_string())
-    print("  -> AD libraries are sequenced DEEPER overall yet their mast cells are")
-    print("     SHALLOWER. A flow-cell effect cannot move those two in opposite")
-    print("     directions; the mast-cell deficit is a property of the cells.")
+    mast = o[o.ct == "Mast"]
+    lib_all = o.groupby(["sample_label", "armp"], observed=True).depth_retained.mean().reset_index()
+    lib_mast = mast.groupby(["sample_label", "armp"], observed=True).depth_retained.mean().reset_index()
+    rows = []
+    for est, all_v, mast_v in (
+            ("pooled (mean over cells)",
+             o.groupby("armp").depth_retained.mean(),
+             mast.groupby("armp").depth_retained.mean()),
+            ("library (median of library means)",
+             lib_all.groupby("armp").depth_retained.median(),
+             lib_mast.groupby("armp").depth_retained.median())):
+        rows.append(dict(estimator=est,
+                         all_AD=all_v["AD"], all_Healthy=all_v["Healthy"],
+                         mast_AD=mast_v["AD"], mast_Healthy=mast_v["Healthy"],
+                         all_ratio_AD_over_H=all_v["AD"] / all_v["Healthy"],
+                         mast_ratio_AD_over_H=mast_v["AD"] / mast_v["Healthy"]))
+    E = pd.DataFrame(rows)
+    E.to_csv(TAB / "depth_arm_estimators.csv", index=False)
+    print("  UMI per cell by arm, all cells and mast cells, under both estimators:")
+    print(E.round(2).to_string(index=False))
+    print("  -> AD libraries are sequenced DEEPER overall under either estimator.")
+    print("     The mast-cell row is estimator-dependent: AD mast cells are shallower")
+    print("     pooled over cells and deeper by library median, because the healthy")
+    print("     mast cells sit in a few deep libraries. So the 'opposite directions'")
+    print("     argument holds only for the pooled estimand and is NOT claimed here")
+    print("     as estimator-free. The estimator-free evidence is section 2: the")
+    print("     within-library mast:reference ratio, which is lower in AD in every")
+    print("     library and cannot be a flow-cell effect by construction.")
 
     # ---- 4. the estimand this implies ------------------------------------
     print("\n" + "=" * 96)

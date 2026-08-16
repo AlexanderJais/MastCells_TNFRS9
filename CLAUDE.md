@@ -127,10 +127,18 @@ The AD arms agree (2.91% vs 2.45%); the HEALTHY arms differ 4-fold (0.56% vs
 2.16%) and that is the whole discrepancy. GSE153760 has 2 healthy donors, the
 discovery cohort 6 -- neither can settle the baseline. On the per-transcript
 rate the two agree in direction (+2.40, +0.58) and pool to +1.27 (0.33-2.22)
-fixed / +1.43 (-0.36-3.21) random.
-GSE222840+GSE173205 is EXCLUDED on a prespecified mast-QC threshold (0.106%
-mast-cell recovery, 27 healthy mast cells, 2 TNFRSF9 transcripts in 111,370
-cells). It failed to recover the cell type; it is not evidence about the gene.
+fixed / +1.43 (-0.36-3.21) random. Heterogeneity is high: I2 = 70% per cell,
+78% per UMI.
+The cohorts do not use the same mast-cell rule (discovery: label AND markers;
+replication: markers AND tryptase magnitude) but that is NOT the explanation --
+under the replication's rule the discovery cohort gives 2/559 vs 82/3002,
+OR 7.82, P=1.1e-4, i.e. slightly stronger.
+REP2 cannot confirm an increase in any case: 2 vs 4 donors is C(6,4)=15 label
+assignments, so its exact permutation P floor is 0.067.
+GSE222840+GSE173205 is EXCLUDED on a prespecified mast-QC threshold, both halves
+of which are enforced in s42 (>=100 mast cells per arm AND >=0.5% recovery): it
+has 0.106% recovery, 27 healthy mast cells, 2 TNFRSF9 transcripts in 111,370
+cells. It failed to recover the cell type; it is not evidence about the gene.
 
 **Mast-cell abundance is unchanged** in every cohort (1.47% vs 1.30%/1.21% of
 cells, MWU P = 0.79/1.00).
@@ -141,10 +149,16 @@ the cell's own mRNA content. Variance decomposition of log(UMI/cell): 27.4%
 between libraries, 22.0% between cell types WITHIN a library (cannot be
 sequencing), 50.6% cell-to-cell. Within-library mast:stromal UMI ratio is
 0.08-0.30 in all 39 libraries and 34% lower in AD (0.134 vs 0.203, P<0.001).
-AD libraries are sequenced deeper overall (4,292 vs 1,564 UMI/cell) yet AD mast
-cells are shallower (693 vs 935) -- no flow-cell effect can do that. The deficit
-is cell-intrinsic, so dividing by mast UMI removes biology. **Per-cell is the
-primary estimand; per-UMI is reported beside it.**
+Formed within a library, that ratio cannot be a flow-cell effect, and it is the
+evidence that the deficit is cell-intrinsic. Absolute UMI/cell is
+weighting-dependent and BOTH weightings are reported: pooled over cells, all
+cells 4,111 vs 2,152 and mast 693 vs 935 (AD/healthy 0.74); by library median,
+all cells 4,292 vs 1,564 and mast 629 vs 347 (1.8). AD libraries are deeper
+either way; the mast row flips, because healthy mast cells sit in a few deep
+libraries. Do NOT argue "the two move in opposite directions" -- that holds only
+for the pooled estimand. Since the deficit is cell-intrinsic, dividing by mast
+UMI removes biology. **Per-cell is the primary estimand; per-UMI is reported
+beside it.**
 
 **On depth adjustment.** The arms are NOT depth-matched: AD cells are 1.5–2.2x
 deeper in fibroblasts, keratinocytes, macrophages and T/NK — but 0.74x in mast

@@ -57,9 +57,10 @@ but it is a low-expression gene, and every analysis below is governed by countin
 statistics rather than fold-change estimation (Fig. 1).
 
 Mast cells are also the shallowest-sampled population in the atlas: a median of
-546–622 UMI per cell against 3,157–4,061 for fibroblasts and keratinocytes.
-Section 7.1 sets out what follows from that, and why per-cell UMI is *not*
-"sequencing depth".
+541–891 UMI per cell across the three tissue groups, against 1,006–3,373 for
+fibroblasts and 1,268–4,061 for keratinocytes
+(`results/tables/sc_depth_by_arm_celltype.csv`). Section 7.1 sets out what
+follows from that, and why per-cell UMI is *not* "sequencing depth".
 
 ---
 
@@ -152,7 +153,23 @@ room for an increase.
 
 Neither cohort is well placed to settle which healthy baseline is right:
 GSE153760 has **two** healthy donors, one contributing 5 of its 6 TNFRSF9⁺ cells;
-the discovery cohort has six, five of them contributing none.
+the discovery cohort has six, five of them contributing none. On the donor-level
+test used throughout this report, GSE153760's 2-versus-4 donor design admits only
+C(6,4) = 15 label assignments, so its exact permutation P cannot fall below
+0.067 whatever the effect size: this cohort can fail to support an increase, but
+it could not have confirmed one at the 5% level.
+
+**The two cohorts do not select mast cells by the same rule, and that is not the
+explanation.** The discovery deposit carries author cell-type labels and its mast
+cells are those labelled Mast that also pass marker QC; the replication deposits
+carry no labels, so mast cells there are defined by marker QC plus a tryptase
+magnitude threshold calibrated on the discovery cohort (96.0% precision, 79.3%
+sensitivity against its labels). Re-analysing the discovery cohort under the
+replication's rule leaves the discovery increase intact and slightly larger — 2
+of 559 (0.36%) healthy versus 82 of 3,002 (2.73%) AD mast cells, Fisher OR 7.82,
+P = 1.1×10⁻⁴, against OR 5.35 under its own rule
+(`results/tables/replication_rule_sensitivity.csv`). The disagreement between
+cohorts is therefore about the cohorts, not about the cell-selection rule.
 
 On the per-transcript rate the two cohorts agree in direction (discovery log₂FC
 +2.40, GSE153760 +0.58), and pooled they give +1.27 (95% CI 0.33 to 2.22,
@@ -321,11 +338,27 @@ populations:
 Within-library ratios make this concrete: mast cells yield 0.08–0.30 of the UMI
 that fibroblasts and keratinocytes yield **in the same run**, in all 39 libraries,
 and that ratio is 34% lower in AD (median 0.134, n = 32 libraries) than healthy
-(0.203, n = 7 libraries; Mann–Whitney P < 0.001). Decisively, the two move in
-opposite directions: **AD libraries are sequenced more deeply overall (median
-4,292 versus 1,564 UMI per cell) yet AD mast cells are shallower (693 versus
-935).** No flow-cell effect can do that. AD mast cells are transcriptionally
-smaller — 399 versus 477 genes detected, less tryptase per cell.
+(0.203, n = 7 libraries; Mann–Whitney P < 0.001). Because it is formed within a
+library, this ratio cannot be produced by a flow-cell effect, and it is the one
+statement here that does not depend on how libraries are weighted.
+
+Absolute UMI per cell does depend on that choice, and both weightings are
+reported (`results/tables/depth_arm_estimators.csv`, 6 healthy versus 11 AD
+donors, 39 libraries):
+
+| Estimator | All cells, AD / healthy | Mast cells, AD / healthy |
+|---|---|---|
+| Pooled over cells | 4,111 / 2,152 (1.9×) | 693 / 935 (**0.74×**) |
+| Median of library means | 4,292 / 1,564 (2.7×) | 629 / 347 (1.8×) |
+
+AD libraries are the deeper ones under either weighting. The mast-cell row is
+not stable: pooled over cells AD mast cells are shallower, but weighting each
+library equally they are deeper, because the healthy mast cells are concentrated
+in a few deep libraries. We therefore do not argue from "the two move in
+opposite directions"; the within-library ratio above is the estimator-free
+evidence that the deficit is cell-intrinsic. AD mast cells are also
+transcriptionally smaller — 399 versus 477 genes detected, less tryptase per
+cell.
 
 **Consequence.** Dividing by mast-cell UMI removes biology along with technical
 effort, using a denominator 25% smaller in AD. The **per-cell estimand is
@@ -360,7 +393,7 @@ claim that the effect is specific. Both are reported.
 | Library size | log-depth offset throughout; depth-stratified analysis below | Effect survives and strengthens |
 | Donor aggregation | All inference donor-level; exact permutation over all 12,376 donor-label assignments | Cluster-robust SEs on 6 clusters not relied upon |
 | Same test in fibroblasts + keratinocytes | +0.91 (P = 0.23) and +0.26 (P = 0.72), 6 vs 11 donors | **No shared shift → not batch** |
-| Per-group median depth | Mast 546 / 541 / 622 UMI; tissue 1,999 / 2,833 / 3,306 (healthy / AD NL / AD LS) | Mast depth comparable across arms |
+| Per-group median depth | Median UMI per cell, healthy / AD NL / AD LS: mast 891 / 541 / 622; all cells 1,155 / 2,467 / 2,992 | **Healthy mast cells are the deepest arm** while healthy tissue is the shallowest — the mast comparison is not depth-favoured in AD |
 | Marker QC | 3,661 of 4,313 deposited "Mast" labels passed (84.9%); 433 QC-positive cells carried non-mast labels and were excluded | Deposited labels imperfect, as anticipated |
 | Dissociation stress | HSP+IEG 986 per 10k mast UMI healthy versus 416 AD | **Healthy is the most stressed arm — biases against the finding**; Spearman(stress, rate) = −0.15, P = 0.57 |
 
@@ -428,8 +461,9 @@ rest of the mast-cell transcriptome is **not** supported.
   single mast cells at 55 µm.
 * **Not established.** 4-1BB protein on the mast-cell surface (see
   `results/PROTEIN_EVIDENCE.md`); any functional consequence; AD-specificity of
-  the tissue-level change; the in-vivo magnitude (I² = 42%); and selective
-  dysregulation relative to the rest of the mast-cell transcriptome.
+  the tissue-level change; the in-vivo magnitude (I² = 70% per cell, 78% per UMI
+  across the two qualifying cohorts); and selective dysregulation relative to the
+  rest of the mast-cell transcriptome.
 
 ---
 
